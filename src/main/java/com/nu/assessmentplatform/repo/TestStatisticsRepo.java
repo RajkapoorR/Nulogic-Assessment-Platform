@@ -8,5 +8,8 @@ import com.nu.assessmentplatform.enums.Levels;
 
 @Repository
 public interface TestStatisticsRepo extends MongoRepository<TestStatistics, String> {
+
 	TestStatistics findByDomainNameAndLevel(String domainName, Levels level);
+
+	TestStatistics findByQuestionCode(String questionCode);
 }

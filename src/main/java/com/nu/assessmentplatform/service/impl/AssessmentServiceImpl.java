@@ -18,8 +18,12 @@ import com.nu.assessmentplatform.domain.Users;
 import com.nu.assessmentplatform.dto.DomainData;
 import com.nu.assessmentplatform.dto.Questions;
 import com.nu.assessmentplatform.dto.QuestionsDetails;
+import com.nu.assessmentplatform.dto.request.SubmitAssessmentRequest;
 import com.nu.assessmentplatform.dto.response.ResponseDTO;
+import com.nu.assessmentplatform.dto.response.ScoreResponse;
+import com.nu.assessmentplatform.enums.AssessmentStatus;
 import com.nu.assessmentplatform.enums.Levels;
+import com.nu.assessmentplatform.helper.AssessmentHelper;
 import com.nu.assessmentplatform.helper.UserHelper;
 import com.nu.assessmentplatform.repo.AssessmentDetailsRepo;
 import com.nu.assessmentplatform.repo.AssessmentQuestionsRepo;
@@ -54,6 +58,9 @@ public class AssessmentServiceImpl implements AssessmentService {
 	@Autowired
 	private TestStatisticsRepo testStatisticsRepo;
 
+	@Autowired
+	private AssessmentHelper assessmentHelper;
+
 	@Override
 	public ResponseDTO<DomainData> fetchAllDomains() {
 		ResponseDTO<DomainData> responseDTO = new ResponseDTO<>();
@@ -71,6 +78,11 @@ public class AssessmentServiceImpl implements AssessmentService {
 	public ResponseDTO<?> createDomains(Domains domains) {
 		ResponseDTO<?> responseDTO = new ResponseDTO<>();
 		try {
+			if (domainsRepo.findByName(domains.getName()) != null) {
+				responseDTO.setStatus("Domains already exists");
+				responseDTO.setSuccess(Boolean.TRUE);
+				return responseDTO;
+			}
 			Domains savedDomain = domainsRepo.save(domains);
 			if (savedDomain != null) {
 				responseDTO.setStatus("Domains created successfully");
@@ -93,6 +105,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 				? assessmentQuestions.getQuestionList().size()
 				: 0;
 		assessmentQuestions.setQuestionCount(questionSize);
+		assessmentQuestions.setTotalQuestionScore(questionSize * 10);
 		AssessmentQuestions questions = assessmentQuestionsRepo.save(assessmentQuestions);
 		if (questions != null) {
 			responseDTO.setStatus("Questions created successfully");
@@ -145,7 +158,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 			responseDTO.setSuccess(Boolean.TRUE);
 			responseDTO.setState(existingTestStatics);
 		}
-		if(existingTestStatics==null) {
+		if (existingTestStatics == null) {
 			responseDTO.setSuccess(Boolean.TRUE);
 			responseDTO.setState(new TestStatistics());
 		}
@@ -159,6 +172,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 			Users userByEmail = userHelper.getUserByEmail(userEmail);
 			AssessmentQuestions questions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
 			if (userByEmail != null && questions != null) {
+				validateExistingAssessments(questionCode, userByEmail, false);
 				saveAssessmentDetailsToDB(questionCode, userByEmail, questions);
 				generateAssessmentNotification(userEmail);
 				responseDTO.setSuccess(Boolean.TRUE);
@@ -175,6 +189,123 @@ public class AssessmentServiceImpl implements AssessmentService {
 		return responseDTO;
 	}
 
+	@Override
+	public ResponseDTO<ScoreResponse> getUserScore(String userEmail, String questionCode) {
+		ResponseDTO<ScoreResponse> responseDTO = new ResponseDTO<>();
+		ScoreResponse response = new ScoreResponse();
+		try {
+			Users userByEmail = userHelper.getUserByEmail(userEmail);
+			if (userByEmail != null) {
+				AssessmentDetails assessmentDetails = assessmentDetailsRepo
+						.findByUserIdAndQuestionCode(userByEmail.getId(), questionCode);
+				if (assessmentDetails != null) {
+					response.setUserScore(assessmentDetails.getScore());
+					response.setTotalQuestionScore(assessmentDetails.getTotalQuestionScore());
+				}
+				responseDTO.setState(response);
+				responseDTO.setSuccess(Boolean.TRUE);
+			}
+			if (userByEmail == null) {
+				throw new IllegalAccessException("User not found");
+			}
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Issue occured - Cause - " + e.getMessage());
+		}
+		return responseDTO;
+
+	}
+
+	@Override
+	public ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
+			AssessmentStatus assessmentStatus) {
+		ResponseDTO<List<AssessmentDetails>> responseDTO = new ResponseDTO<>();
+		try {
+			Users userByEmail = userHelper.getUserByEmail(userEmail);
+			if (userByEmail != null) {
+				List<AssessmentDetails> assessment = assessmentDetailsRepo
+						.findByUserIdAndAssessmentStatus(userByEmail.getId(), assessmentStatus);
+				if (assessment != null) {
+					responseDTO.setState(assessment);
+					responseDTO.setSuccess(Boolean.TRUE);
+				}
+			}
+			if (userByEmail == null) {
+				throw new IllegalAccessException("User not found");
+			}
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Issue occured - Cause - " + e.getMessage());
+		}
+		return responseDTO;
+	}
+
+	@Override
+	public ResponseDTO<ScoreResponse> submitResponse(SubmitAssessmentRequest submitAssessmentRequest) {
+		ResponseDTO<ScoreResponse> responseDTO = new ResponseDTO<>();
+		ScoreResponse scoreResponse = new ScoreResponse();
+		try {
+			Users user = userHelper.fetchSingleUser(submitAssessmentRequest.getUserId());
+			validateExistingAssessments(submitAssessmentRequest.getQuestionCode(), user, true);
+			AssessmentQuestions assessmentQuestions = assessmentQuestionsRepo
+					.findByQuestionCode(submitAssessmentRequest.getQuestionCode());
+			if (assessmentQuestions != null) {
+				List<QuestionsDetails> questionList = assessmentQuestions.getQuestionList();
+				List<QuestionsDetails> submittedAnswers = submitAssessmentRequest.getQuestionsDetails();
+				int score = calculateScore(questionList, submittedAnswers);
+				updateScoreAndTestCountInDB(assessmentQuestions, submitAssessmentRequest.getUserId(), score);
+				assessmentHelper.updateTestCount(assessmentQuestions.getDomainName(),
+						assessmentQuestions.getDifficultyLevel(), assessmentQuestions.getQuestionCode(),
+						user.getEmail());
+				scoreResponse.setUserScore(score);
+				scoreResponse.setTotalQuestionScore(assessmentQuestions.getTotalQuestionScore());
+				responseDTO.setState(scoreResponse);
+				responseDTO.setSuccess(Boolean.TRUE);
+			}
+
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Issue occured - Cause - " + e.getMessage());
+		}
+		return responseDTO;
+	}
+
+	private void updateScoreAndTestCountInDB(AssessmentQuestions assessmentQuestions, String userId, int score) {
+		int count = 0;
+		AssessmentDetails assessmentDetails = new AssessmentDetails();
+		assessmentDetails.setAssessmentStatus(AssessmentStatus.COMPLETED);
+		assessmentDetails.setDomain(assessmentQuestions.getDomainName());
+		assessmentDetails.setLevel(assessmentQuestions.getDifficultyLevel());
+		assessmentDetails.setQuestionCode(assessmentQuestions.getQuestionCode());
+		assessmentDetails.setQuestionCount(assessmentQuestions.getQuestionCount());
+		assessmentDetails.setScore(score);
+		assessmentDetails.setUserId(userId);
+		assessmentDetails.setTotalQuestionScore(100);
+		assessmentDetails.setUserTestCount(++count);
+		assessmentDetailsRepo.save(assessmentDetails);
+	}
+
+	public int calculateScore(List<QuestionsDetails> questionList, List<QuestionsDetails> submittedAnswers) {
+		int totalQuestions = questionList.size();
+		int correctResponses = 0;
+		for (int i = 0; i < totalQuestions; i++) {
+			QuestionsDetails question = questionList.get(i);
+			QuestionsDetails submittedAnswer = submittedAnswers.get(i);
+
+			if (!areQuestionsIdentical(question, submittedAnswer)) {
+				throw new IllegalArgumentException("Questions are not identical.");
+			}
+			if (question.getCorrectOptionIndex() == submittedAnswer.getCorrectOptionIndex()) {
+				correctResponses++;
+			}
+		}
+		return (int) (correctResponses * 10);
+	}
+
+	private boolean areQuestionsIdentical(QuestionsDetails question1, QuestionsDetails submittedAnswers) {
+		return question1.getQuestionText().contentEquals(submittedAnswers.getQuestionText());
+	}
+
 	private void generateAssessmentNotification(String userEmail) throws MessagingException {
 		Context context = new Context();
 		String html = templateEngine.process("assessment-notification-template", context);
@@ -183,11 +314,24 @@ public class AssessmentServiceImpl implements AssessmentService {
 
 	private void saveAssessmentDetailsToDB(String questionCode, Users userByEmail, AssessmentQuestions questions) {
 		AssessmentDetails assessmentDetails = new AssessmentDetails();
-		assessmentDetails.setUser(userByEmail);
+		assessmentDetails.setUserId(userByEmail.getId());
 		assessmentDetails.setQuestionCode(questionCode);
 		assessmentDetails.setDomain(questions.getDomainName());
 		assessmentDetails.setLevel(questions.getDifficultyLevel());
 		assessmentDetails.setQuestionCount(questions.getQuestionCount());
+		assessmentDetails.setTotalQuestionScore(100);
+		assessmentDetails.setAssessmentStatus(AssessmentStatus.ASSIGNED);
 		assessmentDetailsRepo.save(assessmentDetails);
+	}
+
+	private void validateExistingAssessments(String questionCode, Users user, boolean submitApi) throws Exception {
+		AssessmentDetails existingAssessment = assessmentDetailsRepo.findByUserIdAndQuestionCode(user.getId(),
+				questionCode);
+		if (existingAssessment != null && existingAssessment.getUserTestCount() >= 1) {
+			throw new Exception("The assessment was already assigned and user have already took the test");
+		}
+		if (existingAssessment != null && !submitApi) {
+			throw new Exception("The assessment was already assigned");
+		}
 	}
 }

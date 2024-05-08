@@ -1,5 +1,7 @@
 package com.nu.assessmentplatform.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
 import com.nu.assessmentplatform.domain.Domains;
 import com.nu.assessmentplatform.domain.TestStatistics;
 import com.nu.assessmentplatform.dto.DomainData;
 import com.nu.assessmentplatform.dto.Questions;
+import com.nu.assessmentplatform.dto.request.SubmitAssessmentRequest;
 import com.nu.assessmentplatform.dto.response.ResponseDTO;
+import com.nu.assessmentplatform.dto.response.ScoreResponse;
+import com.nu.assessmentplatform.enums.AssessmentStatus;
 import com.nu.assessmentplatform.enums.Levels;
 import com.nu.assessmentplatform.service.AssessmentService;
 
@@ -69,7 +75,7 @@ public class AssessmentController {
 		return ResponseEntity.ok(responseDTO);
 	}
 
-	@GetMapping("/stastics")
+	@GetMapping("/statistics")
 	public ResponseEntity<ResponseDTO<TestStatistics>> getTestStatistics(
 			@RequestParam(name = "domain") String domainName,
 			@RequestParam(name = "difficultyLevel") Levels difficultyLevel) {
@@ -82,5 +88,26 @@ public class AssessmentController {
 			@RequestParam("questionCode") String questionCode) throws MessagingException {
 		ResponseDTO<?> assignTask = assessmentService.assignTask(userEmail, questionCode);
 		return assignTask;
+	}
+
+	@GetMapping("/getUserScore")
+	public ResponseDTO<ScoreResponse> getScore(@RequestParam("userEmail") String userEmail,
+			@RequestParam("questionCode") String questionCode) {
+		ResponseDTO<ScoreResponse> userScore = assessmentService.getUserScore(userEmail, questionCode);
+		return userScore;
+	}
+
+	@GetMapping("/fetchUserAssessment")
+	public ResponseDTO<List<AssessmentDetails>> getUserAssessment(@RequestParam("userEmail") String userEmail,
+			@RequestParam("assessmentStatus") AssessmentStatus assessmentStatus) {
+		ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment = assessmentService
+				.fetchUsersAssignedAssessment(userEmail, assessmentStatus);
+		return fetchUsersAssignedAssessment;
+	}
+
+	@PostMapping("/submitResponse")
+	public ResponseDTO<ScoreResponse> submitResponse(@RequestBody SubmitAssessmentRequest assessmentRequest) {
+		ResponseDTO<ScoreResponse> submitResponse = assessmentService.submitResponse(assessmentRequest);
+		return submitResponse;
 	}
 }

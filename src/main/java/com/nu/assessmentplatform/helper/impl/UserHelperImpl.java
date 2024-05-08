@@ -62,4 +62,9 @@ public class UserHelperImpl implements UserHelper {
 		return signInResponse;
 	}
 
+	@Override
+	public Users fetchSingleUser(String userId) {
+		return !usersRepo.findById(userId).isEmpty() ? usersRepo.findById(userId).get() : null;
+	}
+
 }

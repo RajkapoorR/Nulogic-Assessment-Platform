@@ -55,4 +55,27 @@ public class UserServiceImpl implements UserService {
 		}
 		return responseDTO;
 	}
+
+	@Override
+	public ResponseDTO<Users> getSingleUser(String userId) {
+		ResponseDTO<Users> responseDTO = new ResponseDTO<>();
+		try {
+			if (userId == null) {
+				responseDTO.setErrors(UserConstants.EMPTY_REQUEST);
+				responseDTO.setSuccess(Boolean.FALSE);
+				return responseDTO;
+			}
+			Users user = userHelper.fetchSingleUser(userId);
+			if (user == null) {
+				throw new IllegalArgumentException(UserConstants.USER_ID_NOT_FOUND);
+			}
+			responseDTO.setSuccess(Boolean.TRUE);
+			responseDTO.setState(user);
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Failed to fetch user :[ Cause - " + e.getMessage() + "]");
+		}
+		return responseDTO;
+	}
+
 }

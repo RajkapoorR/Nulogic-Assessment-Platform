@@ -1,5 +1,8 @@
 package com.nu.assessmentplatform.helper.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,28 +24,48 @@ public class AssessmentHelperImpl implements AssessmentHelper {
 	private AssessmentDetailsRepo assessmentDetailsRepo;
 
 	@Override
-	public void updateTestCount(String domain, Levels level) {
-		TestStatistics existingTestStatics = testStatisticsRepo.findByDomainNameAndLevel(domain, level);
+	public void updateTestCount(String domain, Levels level, String questionCode, String email) {
+		TestStatistics existingTestStatics = null;
+		if (questionCode != null) {
+			existingTestStatics = testStatisticsRepo.findByQuestionCode(questionCode);
+		} else {
+			existingTestStatics = testStatisticsRepo.findByDomainNameAndLevel(domain, level);
+		}
 		if (existingTestStatics != null) {
 			int overallCount = existingTestStatics.getOverallCount();
+			List<String> userAttendees = existingTestStatics.getUserAttendees();
 			existingTestStatics.setOverallCount(++overallCount);
+			userAttendees.add(email);
+			existingTestStatics.setUserAttendees(userAttendees);
 			testStatisticsRepo.save(existingTestStatics);
 		} else {
+			List<String> userAttendees = new ArrayList<>();
+			userAttendees.add(email);
 			TestStatistics statistics = new TestStatistics();
 			statistics.setDomainName(domain);
 			statistics.setLevel(level);
 			statistics.setOverallCount(1);
+			statistics.setUserAttendees(userAttendees);
+			statistics.setQuestionCode(questionCode);
 			testStatisticsRepo.save(statistics);
 		}
 	}
 
 	@Override
-	public int fetchUserTestCount(String domain, Levels level, Users users) {
-		AssessmentDetails assessmentDetails = assessmentDetailsRepo.findByUserAndDomainAndLevel(users, domain, level);
+	public int fetchUserTestCount(String domain, Levels level, Users users, String questionCode) {
+		AssessmentDetails assessmentDetails = null;
+		if (domain != null && level != null && users != null) {
+			assessmentDetails = assessmentDetailsRepo.findByUserIdAndDomainAndLevel(users.getId(), domain, level);
+		}
+		if (questionCode != null && users != null) {
+			assessmentDetails = assessmentDetailsRepo.findByUserIdAndQuestionCode(users.getId(), questionCode);
+		}
+
 		if (assessmentDetails != null) {
 			return assessmentDetails.getUserTestCount();
 		} else {
 			return 0;
 		}
 	}
+
 }

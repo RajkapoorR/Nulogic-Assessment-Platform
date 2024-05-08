@@ -36,19 +36,10 @@ public class Users {
 	@Field("password")
 	private String password;
 
-	@Field("desigination")
-	private String desigination;
-
 	@Field("createdAt")
 	private String createdAt;
 
 	@Field("updatedAt")
 	private String updatedAt;
-
-	@Field("isModifiedPassword")
-	private boolean isModifiedPassword;
-
-	@Field("isPartTimer")
-	private boolean isPartTimer;
 
 }

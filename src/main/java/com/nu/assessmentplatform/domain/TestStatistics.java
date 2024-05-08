@@ -16,6 +16,7 @@ public class TestStatistics {
 	private String id;
 	private String domainName;
 	private Levels level;
+	private String questionCode;
 	private int overallCount;
     private List<String> userAttendees;
 }

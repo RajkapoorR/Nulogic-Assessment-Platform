@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.nu.assessmentplatform.enums.Levels;
+import com.nu.assessmentplatform.enums.AssessmentStatus;
 
 import lombok.Data;
 
@@ -18,16 +19,20 @@ public class AssessmentDetails {
 	private String domain;
 
 	private Levels level;
-	
+
 	@Indexed(unique = true)
 	private String questionCode;
 
-	private Users user;
+	private String userId;
 
 	private int score;
-	
+
 	private int questionCount;
 
 	private int userTestCount;
+
+	private int totalQuestionScore;
+
+	private AssessmentStatus assessmentStatus;
 
 }

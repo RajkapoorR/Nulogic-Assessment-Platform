@@ -15,5 +15,7 @@ public interface UserHelper {
 
 	GoogleSignInResponse populateGoogleSignInResponse(String token, Users users);
 
+	Users fetchSingleUser(String userId);
+
 
 }

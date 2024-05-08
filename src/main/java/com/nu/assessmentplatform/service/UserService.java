@@ -2,6 +2,7 @@ package com.nu.assessmentplatform.service;
 
 import org.springframework.stereotype.Service;
 
+import com.nu.assessmentplatform.domain.Users;
 import com.nu.assessmentplatform.dto.request.GoogleSignInRequest;
 import com.nu.assessmentplatform.dto.response.GoogleSignInResponse;
 import com.nu.assessmentplatform.dto.response.ResponseDTO;
@@ -10,5 +11,7 @@ import com.nu.assessmentplatform.dto.response.ResponseDTO;
 public interface UserService {
 
 	ResponseDTO<GoogleSignInResponse> signInWithGoogle(GoogleSignInRequest googleSignInRequest);
+
+	ResponseDTO<Users> getSingleUser(String userId);
 
 }

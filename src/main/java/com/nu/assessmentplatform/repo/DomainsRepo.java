@@ -7,5 +7,5 @@ import com.nu.assessmentplatform.domain.Domains;
 
 @Repository
 public interface DomainsRepo extends MongoRepository<Domains, String> {
-
+	Domains findByName(String name);
 }

@@ -18,14 +18,14 @@ public class AssessmentQuestions {
 
 	@Id
 	private String id;
-	
-    @Indexed(unique = true)
+
+	@Indexed(unique = true)
 	@Field("questionCode")
 	private String questionCode;
 
 	@Field("questions")
 	private List<QuestionsDetails> questionList;
-	
+
 	@Field("questionCount")
 	private int questionCount;
 
@@ -34,5 +34,8 @@ public class AssessmentQuestions {
 
 	@Field("level")
 	private Levels difficultyLevel;
+
+	@Field("totalQuestionScore")
+	private int totalQuestionScore;
 
 }

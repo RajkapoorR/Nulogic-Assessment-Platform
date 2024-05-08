@@ -8,8 +8,8 @@ import com.nu.assessmentplatform.enums.Levels;
 @Component
 public interface AssessmentHelper {
 
-	void updateTestCount(String domain, Levels level);
+	int fetchUserTestCount(String domain, Levels level, Users users, String questionCode);
 
-	int fetchUserTestCount(String domain, Levels level, Users users);
+	void updateTestCount(String domain, Levels level, String questionCode, String email);
 
 }

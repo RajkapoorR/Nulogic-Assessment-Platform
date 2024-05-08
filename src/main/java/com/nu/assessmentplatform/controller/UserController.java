@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nu.assessmentplatform.domain.Users;
 import com.nu.assessmentplatform.dto.request.GoogleSignInRequest;
 import com.nu.assessmentplatform.dto.response.GoogleSignInResponse;
 import com.nu.assessmentplatform.dto.response.ResponseDTO;
@@ -32,4 +35,15 @@ public class UserController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	@GetMapping("/get-user/{userId}")
+	public ResponseEntity<ResponseDTO<Users>> getUserDetail(@PathVariable("userId") String userId) {
+		ResponseDTO<Users> responseDTO = userService.getSingleUser(userId);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
+	}
+
 }

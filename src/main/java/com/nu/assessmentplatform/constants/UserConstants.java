@@ -9,4 +9,5 @@ public class UserConstants {
 	public static final String EMAIL_VALIDATION_ERROR = "This email does not matches organization email";
 	public static final String DEFAULT_PASSWORD = "welcome-123";
 	public static final String NUTECHNOLOGY_EMAIL = "nutechnologyinc.com";
+	public static final String USER_ID_NOT_FOUND = "User id not found!!";
 }
