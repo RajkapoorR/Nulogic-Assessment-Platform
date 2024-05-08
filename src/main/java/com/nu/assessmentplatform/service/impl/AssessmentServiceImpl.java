@@ -13,7 +13,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
 import com.nu.assessmentplatform.domain.Domains;
-import com.nu.assessmentplatform.domain.SubmissionRequest;
 import com.nu.assessmentplatform.domain.TestStatistics;
 import com.nu.assessmentplatform.domain.Users;
 import com.nu.assessmentplatform.dto.DomainData;
@@ -30,7 +29,6 @@ import com.nu.assessmentplatform.service.AssessmentService;
 import com.nu.assessmentplatform.utils.EmailUtils;
 
 import jakarta.mail.MessagingException;
-import lombok.Data;
 
 @Service
 public class AssessmentServiceImpl implements AssessmentService {
@@ -55,8 +53,6 @@ public class AssessmentServiceImpl implements AssessmentService {
 
 	@Autowired
 	private TestStatisticsRepo testStatisticsRepo;
-	@Autowired
-	private AssessmentService assessmentService;
 
 	@Override
 	public ResponseDTO<DomainData> fetchAllDomains() {
@@ -194,44 +190,4 @@ public class AssessmentServiceImpl implements AssessmentService {
 		assessmentDetails.setQuestionCount(questions.getQuestionCount());
 		assessmentDetailsRepo.save(assessmentDetails);
 	}
-
-	@Override
-	public ResponseDTO<?> submitAnswer(SubmissionRequest submissionRequest) {
-		try {
-			int selectedOption = submissionRequest.getSelectedOption();
-			String assessmentId = submissionRequest.getAssessmentId();
-
-			// Call the method to update assessment details based on user submission
-			AssessmentDetails updatedAssessment = updateAssessmentDetails(assessmentId, selectedOption);
-
-			// Prepare a success response
-			ResponseDTO<AssessmentDetails> responseDTO = new ResponseDTO<>();
-			responseDTO.setSuccess(true);
-			responseDTO.setMessage("Answer submitted successfully");
-			responseDTO.setData(updatedAssessment);
-
-			return responseDTO;
-		} catch (Exception e) {
-			// Handle any exceptions and prepare an error response
-			return ResponseDTO.error("Failed to submit answer: " + e.getMessage());
-		}
-	}
-
-	@Override
-	public void save(AssessmentDetails assessmentDetails) {
-
-	}
-
-	@Override
-	public AssessmentDetails getAssessmentDetailsById(String assessmentId) {
-		return null;
-	}
- 	@Override
-	public AssessmentDetails updateAssessmentDetails(String assessmentId, int selectedOption) {
-		AssessmentDetails assessmentDetails = assessmentService.getAssessmentDetailsById(assessmentId);
-		assessmentDetails.setSelectedOption(selectedOption);
-		assessmentService.save(assessmentDetails);
-		return assessmentDetails;
-	}
-
 }
