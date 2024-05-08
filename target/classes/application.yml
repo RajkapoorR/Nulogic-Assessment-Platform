@@ -1,0 +1,30 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /rest
+
+spring:
+  application:
+    name: assessment-platform
+  data:
+   mongodb:
+      host: localhost
+      uri: mongodb://localhost:27017/
+      port: 27017
+      database: Assessment_System
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: testd1033@gmail.com
+    password: ydoy kvij ugnl uads
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    
+    test-connection: true
+jwt:
+  expires-in: 7200 #2h
