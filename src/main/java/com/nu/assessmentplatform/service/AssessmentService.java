@@ -2,10 +2,8 @@ package com.nu.assessmentplatform.service;
 
 import org.springframework.stereotype.Service;
 
-import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
 import com.nu.assessmentplatform.domain.Domains;
-import com.nu.assessmentplatform.domain.SubmissionRequest;
 import com.nu.assessmentplatform.domain.TestStatistics;
 import com.nu.assessmentplatform.dto.DomainData;
 import com.nu.assessmentplatform.dto.Questions;
@@ -30,14 +28,5 @@ public interface AssessmentService {
 	ResponseDTO<TestStatistics> getStaticsData(String domain, Levels level);
 
 	ResponseDTO<?> assignTask(String userEmail, String questionCode) throws MessagingException;
-
-	ResponseDTO<?> submitAnswer(SubmissionRequest submissionRequest);
-
-
-	void save(AssessmentDetails assessmentDetails);
-
-	AssessmentDetails getAssessmentDetailsById(String assessmentId);
-
-	AssessmentDetails updateAssessmentDetails(String assessmentId, int selectedOption);
 
 }
