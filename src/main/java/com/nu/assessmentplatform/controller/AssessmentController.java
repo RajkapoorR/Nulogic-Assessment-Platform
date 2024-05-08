@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
 import com.nu.assessmentplatform.domain.Domains;
+import com.nu.assessmentplatform.domain.SubmissionRequest;
 import com.nu.assessmentplatform.domain.TestStatistics;
 import com.nu.assessmentplatform.dto.DomainData;
 import com.nu.assessmentplatform.dto.Questions;
@@ -69,7 +71,7 @@ public class AssessmentController {
 		return ResponseEntity.ok(responseDTO);
 	}
 
-	@GetMapping("/stastics")
+	@GetMapping("/statistics")
 	public ResponseEntity<ResponseDTO<TestStatistics>> getTestStatistics(
 			@RequestParam(name = "domain") String domainName,
 			@RequestParam(name = "difficultyLevel") Levels difficultyLevel) {
@@ -79,8 +81,15 @@ public class AssessmentController {
 
 	@GetMapping("/assignTask")
 	public ResponseDTO<?> assignTask(@RequestParam("userEmail") String userEmail,
-			@RequestParam("questionCode") String questionCode) throws MessagingException {
+									 @RequestParam("questionCode") String questionCode) throws MessagingException {
 		ResponseDTO<?> assignTask = assessmentService.assignTask(userEmail, questionCode);
 		return assignTask;
+	}
+
+	@PostMapping("/submit-answer")
+	public AssessmentDetails submitAnswer(@RequestBody SubmissionRequest submissionRequest) {
+		int selectedOption = submissionRequest.getSelectedOption();
+		String assessmentId = submissionRequest.getAssessmentId();
+		return assessmentService.updateAssessmentDetails(assessmentId, selectedOption);
 	}
 }
