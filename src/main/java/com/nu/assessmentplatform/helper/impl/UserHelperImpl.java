@@ -1,7 +1,7 @@
 package com.nu.assessmentplatform.helper.impl;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.nu.assessmentplatform.constants.UserConstants;
 import com.nu.assessmentplatform.domain.Users;
+import com.nu.assessmentplatform.dto.UserDTO;
 import com.nu.assessmentplatform.dto.request.GoogleSignInRequest;
 import com.nu.assessmentplatform.dto.response.GoogleSignInResponse;
 import com.nu.assessmentplatform.helper.UserHelper;
@@ -40,10 +41,9 @@ public class UserHelperImpl implements UserHelper {
 		userData.setLastName(googleSignInRequest.getLastName());
 		userData.setGoogleAuthId(googleSignInRequest.getGoogleId());
 		userData.setDisplayName(displayName);
-		LocalDateTime now = LocalDateTime.now();
-		String timestampString = now.format(DateTimeFormatter.ISO_DATE_TIME);
-		userData.setCreatedAt(timestampString);
-		userData.setUpdatedAt(timestampString);
+		Date now = Date.from(Instant.now());
+		userData.setCreatedAt(now);
+		userData.setUpdatedAt(now);
 		String hashedPassword = hashPassword(UserConstants.DEFAULT_PASSWORD);
 		userData.setPassword(hashedPassword);
 		usersRepo.save(userData);
@@ -59,12 +59,41 @@ public class UserHelperImpl implements UserHelper {
 		signInResponse.setGoogleId(users.getGoogleAuthId());
 		signInResponse.setFirstName(users.getFirstName());
 		signInResponse.setLastName(users.getLastName());
+		signInResponse.setUserRole(users.getUserRole());
 		return signInResponse;
 	}
 
 	@Override
 	public Users fetchSingleUser(String userId) {
 		return !usersRepo.findById(userId).isEmpty() ? usersRepo.findById(userId).get() : null;
+	}
+
+	@Override
+	public Users fetchUserByEmail(String email) {
+		return usersRepo.findByEmail(email) != null ? usersRepo.findByEmail(email) : null;
+	}
+
+	@Override
+	public Users saveUserDataToDB(Users users) {
+		Date now = Date.from(Instant.now());
+		users.setCreatedAt(now);
+		users.setUpdatedAt(now);
+		String hashedPassword = hashPassword(users.getPassword());
+		users.setPassword(hashedPassword);
+		Users saveUser = usersRepo.save(users);
+		return saveUser;
+	}
+
+	@Override
+	public UserDTO populateUserResponse(Users savedUser) {
+		UserDTO userDTO = new UserDTO();
+		userDTO.setDisplayName(savedUser.getDisplayName());
+		userDTO.setEmail(savedUser.getEmail());
+		userDTO.setFirstName(savedUser.getFirstName());
+		userDTO.setId(savedUser.getId());
+		userDTO.setLastName(savedUser.getLastName());
+		userDTO.setUserRole(savedUser.getUserRole());
+		return userDTO;
 	}
 
 }

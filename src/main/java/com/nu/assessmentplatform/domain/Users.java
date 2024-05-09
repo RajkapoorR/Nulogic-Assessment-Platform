@@ -1,13 +1,17 @@
 package com.nu.assessmentplatform.domain;
 
+import java.util.Date;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Document(collection = "Users")
 @Data
+@ToString
 public class Users {
 	@Id
 	private String id;
@@ -37,9 +41,9 @@ public class Users {
 	private String password;
 
 	@Field("createdAt")
-	private String createdAt;
+	private Date createdAt;
 
 	@Field("updatedAt")
-	private String updatedAt;
+	private Date updatedAt;
 
 }

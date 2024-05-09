@@ -3,6 +3,7 @@ package com.nu.assessmentplatform.helper;
 import org.springframework.stereotype.Component;
 
 import com.nu.assessmentplatform.domain.Users;
+import com.nu.assessmentplatform.dto.UserDTO;
 import com.nu.assessmentplatform.dto.request.GoogleSignInRequest;
 import com.nu.assessmentplatform.dto.response.GoogleSignInResponse;
 
@@ -17,5 +18,10 @@ public interface UserHelper {
 
 	Users fetchSingleUser(String userId);
 
+	Users fetchUserByEmail(String email);
+
+	Users saveUserDataToDB(Users users);
+
+	UserDTO populateUserResponse(Users savedUser);
 
 }

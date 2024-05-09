@@ -223,8 +223,13 @@ public class AssessmentServiceImpl implements AssessmentService {
 		try {
 			Users userByEmail = userHelper.getUserByEmail(userEmail);
 			if (userByEmail != null) {
-				List<AssessmentDetails> assessment = assessmentDetailsRepo
-						.findByUserIdAndAssessmentStatus(userByEmail.getId(), assessmentStatus);
+				List<AssessmentDetails> assessment = null;
+				if (assessmentStatus != null) {
+					assessment = assessmentDetailsRepo.findByUserIdAndAssessmentStatus(userByEmail.getId(),
+							assessmentStatus);
+				} else {
+					assessment = assessmentDetailsRepo.findByUserId(userByEmail.getId());
+				}
 				if (assessment != null) {
 					responseDTO.setState(assessment);
 					responseDTO.setSuccess(Boolean.TRUE);

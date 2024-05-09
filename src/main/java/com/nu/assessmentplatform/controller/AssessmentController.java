@@ -99,7 +99,7 @@ public class AssessmentController {
 
 	@GetMapping("/fetchUserAssessment")
 	public ResponseDTO<List<AssessmentDetails>> getUserAssessment(@RequestParam("userEmail") String userEmail,
-			@RequestParam("assessmentStatus") AssessmentStatus assessmentStatus) {
+			@RequestParam(name="assessmentStatus",required = false) AssessmentStatus assessmentStatus) {
 		ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment = assessmentService
 				.fetchUsersAssignedAssessment(userEmail, assessmentStatus);
 		return fetchUsersAssignedAssessment;

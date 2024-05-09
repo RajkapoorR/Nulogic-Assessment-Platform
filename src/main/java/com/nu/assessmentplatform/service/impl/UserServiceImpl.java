@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.nu.assessmentplatform.constants.UserConstants;
 import com.nu.assessmentplatform.domain.Users;
+import com.nu.assessmentplatform.dto.UserDTO;
 import com.nu.assessmentplatform.dto.request.GoogleSignInRequest;
 import com.nu.assessmentplatform.dto.response.GoogleSignInResponse;
 import com.nu.assessmentplatform.dto.response.ResponseDTO;
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService {
 				responseDTO.setSuccess(Boolean.TRUE);
 			} else {
 				Users userData = userHelper.createUserFromRequest(googleSignInRequest);
-				token = jwtUtil.generateToken(users);
+				token = jwtUtil.generateToken(userData);
 				googleSignInResponse = userHelper.populateGoogleSignInResponse(token, userData);
 				responseDTO.setState(googleSignInResponse);
 				responseDTO.setSuccess(Boolean.TRUE);
@@ -57,23 +58,50 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public ResponseDTO<Users> getSingleUser(String userId) {
+	public ResponseDTO<Users> getSingleUser(String userId, String email) {
 		ResponseDTO<Users> responseDTO = new ResponseDTO<>();
 		try {
-			if (userId == null) {
-				responseDTO.setErrors(UserConstants.EMPTY_REQUEST);
-				responseDTO.setSuccess(Boolean.FALSE);
-				return responseDTO;
+			Users user = null;
+			if (userId != null) {
+				user = userHelper.fetchSingleUser(userId);
+
 			}
-			Users user = userHelper.fetchSingleUser(userId);
+			if (email != null) {
+				user = userHelper.fetchUserByEmail(email);
+			}
 			if (user == null) {
-				throw new IllegalArgumentException(UserConstants.USER_ID_NOT_FOUND);
+				throw new IllegalArgumentException(UserConstants.USER_NOT_FOUND);
 			}
 			responseDTO.setSuccess(Boolean.TRUE);
 			responseDTO.setState(user);
 		} catch (Exception e) {
 			responseDTO.setSuccess(Boolean.FALSE);
 			responseDTO.setErrors("Failed to fetch user :[ Cause - " + e.getMessage() + "]");
+		}
+		return responseDTO;
+	}
+
+	@Override
+	public ResponseDTO<UserDTO> createUser(Users users) {
+		ResponseDTO<UserDTO> responseDTO = new ResponseDTO<>();
+		UserDTO userDTO = null;
+		try {
+			if (users == null) {
+				responseDTO.setErrors(UserConstants.EMPTY_REQUEST);
+				responseDTO.setSuccess(Boolean.FALSE);
+				return responseDTO;
+			}
+			Users existingUser = userHelper.getUserByEmail(users.getEmail());
+			if (existingUser != null) {
+				throw new IllegalArgumentException(UserConstants.USER_EXISTS);
+			}
+			Users savedUser = userHelper.saveUserDataToDB(users);
+			userDTO = userHelper.populateUserResponse(savedUser);
+			responseDTO.setSuccess(Boolean.TRUE);
+			responseDTO.setState(userDTO);
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Failed to create user :[ Cause - " + e.getMessage() + "]");
 		}
 		return responseDTO;
 	}

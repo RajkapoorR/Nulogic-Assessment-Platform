@@ -1,4 +1,4 @@
-package com.nu.assessmentplatform.dto.response;
+package com.nu.assessmentplatform.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -7,9 +7,11 @@ import lombok.Data;
 
 @Data
 @JsonInclude(value = Include.NON_NULL)
-public class GoogleSignInResponse {
+public class UserDTO {
 
-	private String email;
+	private String id;
+	
+	private String userRole;
 
 	private String firstName;
 
@@ -17,9 +19,6 @@ public class GoogleSignInResponse {
 
 	private String displayName;
 
-	private String googleId;
+	private String email;
 
-	private String token;
-	
-	private String userRole;
 }
