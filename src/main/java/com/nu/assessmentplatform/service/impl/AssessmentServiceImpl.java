@@ -1,6 +1,8 @@
 package com.nu.assessmentplatform.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,9 +89,6 @@ public class AssessmentServiceImpl implements AssessmentService {
 			if (savedDomain != null) {
 				responseDTO.setStatus("Domains created successfully");
 				responseDTO.setSuccess(Boolean.TRUE);
-			} else {
-				responseDTO.setSuccess(Boolean.FALSE);
-				responseDTO.setStatus("Issue while creating a domain");
 			}
 		} catch (Exception e) {
 			responseDTO.setSuccess(Boolean.FALSE);
@@ -151,16 +150,28 @@ public class AssessmentServiceImpl implements AssessmentService {
 	}
 
 	@Override
-	public ResponseDTO<TestStatistics> getStaticsData(String domain, Levels level) {
-		ResponseDTO<TestStatistics> responseDTO = new ResponseDTO<>();
-		TestStatistics existingTestStatics = testStatisticsRepo.findByDomainNameAndLevel(domain, level);
-		if (existingTestStatics != null) {
-			responseDTO.setSuccess(Boolean.TRUE);
-			responseDTO.setState(existingTestStatics);
-		}
-		if (existingTestStatics == null) {
-			responseDTO.setSuccess(Boolean.TRUE);
-			responseDTO.setState(new TestStatistics());
+	public ResponseDTO<List<TestStatistics>> getStaticsData(String domain, Levels level) {
+		ResponseDTO<List<TestStatistics>> responseDTO = new ResponseDTO<>();
+		if (domain != null && level != null) {
+			TestStatistics existingTestStatics = testStatisticsRepo.findByDomainNameAndLevel(domain, level);
+			if (existingTestStatics != null) {
+				responseDTO.setSuccess(Boolean.TRUE);
+				responseDTO.setState(Arrays.asList(existingTestStatics));
+			}
+			if (existingTestStatics == null) {
+				responseDTO.setSuccess(Boolean.TRUE);
+				responseDTO.setState(Collections.emptyList());
+			}
+		} else {
+			List<TestStatistics> testStatistics = testStatisticsRepo.findAll();
+			if (testStatistics != null) {
+				responseDTO.setSuccess(Boolean.TRUE);
+				responseDTO.setState(testStatistics);
+			}
+			if (testStatistics == null) {
+				responseDTO.setSuccess(Boolean.TRUE);
+				responseDTO.setState(Collections.emptyList());
+			}
 		}
 		return responseDTO;
 	}
@@ -176,7 +187,10 @@ public class AssessmentServiceImpl implements AssessmentService {
 				saveAssessmentDetailsToDB(questionCode, userByEmail, questions);
 				generateAssessmentNotification(userEmail);
 				responseDTO.setSuccess(Boolean.TRUE);
-				responseDTO.setStatus("Asssesment assigned successfully and notified to the employee via mail");
+				responseDTO.setStatus("Assessment assigned successfully and notified to the employee via mail");
+			}
+			if (questions == null) {
+				throw new IllegalAccessException("Invalid question code");
 			}
 			if (userByEmail == null) {
 				throw new IllegalAccessException("User not found");
@@ -190,19 +204,14 @@ public class AssessmentServiceImpl implements AssessmentService {
 	}
 
 	@Override
-	public ResponseDTO<ScoreResponse> getUserScore(String userEmail, String questionCode) {
-		ResponseDTO<ScoreResponse> responseDTO = new ResponseDTO<>();
-		ScoreResponse response = new ScoreResponse();
+	public ResponseDTO<List<AssessmentDetails>> getUserScore(String userEmail) {
+		ResponseDTO<List<AssessmentDetails>> responseDTO = new ResponseDTO<>();
 		try {
 			Users userByEmail = userHelper.getUserByEmail(userEmail);
 			if (userByEmail != null) {
-				AssessmentDetails assessmentDetails = assessmentDetailsRepo
-						.findByUserIdAndQuestionCode(userByEmail.getId(), questionCode);
-				if (assessmentDetails != null) {
-					response.setUserScore(assessmentDetails.getScore());
-					response.setTotalQuestionScore(assessmentDetails.getTotalQuestionScore());
-				}
-				responseDTO.setState(response);
+				List<AssessmentDetails> assessmentDetails = assessmentDetailsRepo
+						.findByUserIdAndAssessmentStatus(userByEmail.getId(), AssessmentStatus.COMPLETED);
+				responseDTO.setState(assessmentDetails);
 				responseDTO.setSuccess(Boolean.TRUE);
 			}
 			if (userByEmail == null) {

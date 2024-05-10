@@ -76,10 +76,10 @@ public class AssessmentController {
 	}
 
 	@GetMapping("/statistics")
-	public ResponseEntity<ResponseDTO<TestStatistics>> getTestStatistics(
-			@RequestParam(name = "domain") String domainName,
-			@RequestParam(name = "difficultyLevel") Levels difficultyLevel) {
-		ResponseDTO<TestStatistics> responseDTO = assessmentService.getStaticsData(domainName, difficultyLevel);
+	public ResponseEntity<ResponseDTO<List<TestStatistics>>> getTestStatistics(
+			@RequestParam(name = "domain" ,required = false) String domainName,
+			@RequestParam(name = "difficultyLevel",required = false) Levels difficultyLevel) {
+		ResponseDTO<List<TestStatistics>> responseDTO = assessmentService.getStaticsData(domainName, difficultyLevel);
 		return ResponseEntity.ok(responseDTO);
 	}
 
@@ -91,15 +91,14 @@ public class AssessmentController {
 	}
 
 	@GetMapping("/getUserScore")
-	public ResponseDTO<ScoreResponse> getScore(@RequestParam("userEmail") String userEmail,
-			@RequestParam("questionCode") String questionCode) {
-		ResponseDTO<ScoreResponse> userScore = assessmentService.getUserScore(userEmail, questionCode);
+	public ResponseDTO<List<AssessmentDetails>> getScore(@RequestParam("userEmail") String userEmail) {
+		ResponseDTO<List<AssessmentDetails>> userScore = assessmentService.getUserScore(userEmail);
 		return userScore;
 	}
 
 	@GetMapping("/fetchUserAssessment")
 	public ResponseDTO<List<AssessmentDetails>> getUserAssessment(@RequestParam("userEmail") String userEmail,
-			@RequestParam(name="assessmentStatus",required = false) AssessmentStatus assessmentStatus) {
+			@RequestParam(name = "assessmentStatus", required = false) AssessmentStatus assessmentStatus) {
 		ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment = assessmentService
 				.fetchUsersAssignedAssessment(userEmail, assessmentStatus);
 		return fetchUsersAssignedAssessment;

@@ -31,15 +31,15 @@ public interface AssessmentService {
 
 	ResponseDTO<?> createAssesmentQuestions(AssessmentQuestions assessmentQuestions);
 
-	ResponseDTO<TestStatistics> getStaticsData(String domain, Levels level);
+	ResponseDTO<List<TestStatistics>> getStaticsData(String domain, Levels level);
 
 	ResponseDTO<?> assignTask(String userEmail, String questionCode) throws MessagingException;
-
-	ResponseDTO<ScoreResponse> getUserScore(String userEmail, String questionCode);
 
 	ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
 			AssessmentStatus assessmentStatus);
 
 	ResponseDTO<ScoreResponse> submitResponse(SubmitAssessmentRequest submitAssessmentRequest);
+
+	ResponseDTO<List<AssessmentDetails>> getUserScore(String userEmail);
 
 }

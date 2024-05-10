@@ -41,6 +41,7 @@ public class UserHelperImpl implements UserHelper {
 		userData.setLastName(googleSignInRequest.getLastName());
 		userData.setGoogleAuthId(googleSignInRequest.getGoogleId());
 		userData.setDisplayName(displayName);
+		userData.setUserRole("enduser");
 		Date now = Date.from(Instant.now());
 		userData.setCreatedAt(now);
 		userData.setUpdatedAt(now);
