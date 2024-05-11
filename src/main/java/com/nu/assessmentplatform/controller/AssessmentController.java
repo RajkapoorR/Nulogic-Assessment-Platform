@@ -45,6 +45,16 @@ public class AssessmentController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@GetMapping("/questionCodes")
+	public ResponseEntity<ResponseDTO<DomainData>> getAllQuestionCode() {
+		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllQuestionCode();
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	@PostMapping("/create-domain")
 	public ResponseEntity<ResponseDTO<?>> createDomain(@RequestBody Domains domains) {

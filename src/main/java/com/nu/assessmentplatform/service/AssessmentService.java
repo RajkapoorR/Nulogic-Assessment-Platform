@@ -42,4 +42,6 @@ public interface AssessmentService {
 
 	ResponseDTO<List<AssessmentDetails>> getUserScore(String userEmail);
 
+	ResponseDTO<DomainData> fetchAllQuestionCode();
+
 }

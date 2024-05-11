@@ -77,6 +77,19 @@ public class AssessmentServiceImpl implements AssessmentService {
 	}
 
 	@Override
+	public ResponseDTO<DomainData> fetchAllQuestionCode() {
+		ResponseDTO<DomainData> responseDTO = new ResponseDTO<>();
+		DomainData data = new DomainData();
+		List<String> questionCode = new ArrayList<>();
+		List<AssessmentQuestions> assessmentQuestions = assessmentQuestionsRepo.findAll();
+		assessmentQuestions.stream().forEach(x -> questionCode.add(x.getQuestionCode()));
+		data.setDomains(questionCode);
+		responseDTO.setState(data);
+		responseDTO.setSuccess(Boolean.TRUE);
+		return responseDTO;
+	}
+
+	@Override
 	public ResponseDTO<?> createDomains(Domains domains) {
 		ResponseDTO<?> responseDTO = new ResponseDTO<>();
 		try {
@@ -129,20 +142,25 @@ public class AssessmentServiceImpl implements AssessmentService {
 		ResponseDTO<Questions> responseDTO = new ResponseDTO<>();
 		Questions questions = new Questions();
 		AssessmentQuestions assessmentQuestions = null;
-		List<QuestionsDetails> questionsDetails = new ArrayList<>();
-		if (StringUtils.hasText(questionCode)) {
+		if (StringUtils.hasText(questionCode) && StringUtils.hasText(difficultyLevel.name())
+				&& StringUtils.hasText(domainName)) {
+			assessmentQuestions = assessmentQuestionsRepo.findByDomainNameAndDifficultyLevelAndQuestionCode(domainName,
+					difficultyLevel, questionCode);
+			questions.setQuestionList(assessmentQuestions.getQuestionList());
+			questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
+			questions.setQuestionCode(questionCode);
+		} else if (StringUtils.hasText(questionCode)) {
 			assessmentQuestions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
 			questions.setQuestionList(assessmentQuestions.getQuestionList());
 			questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
+			questions.setQuestionCode(questionCode);
 
 		} else {
-			List<AssessmentQuestions> assessmentQuestionList = assessmentQuestionsRepo
+			AssessmentQuestions assessmentQuestion = assessmentQuestionsRepo
 					.findByDomainNameAndDifficultyLevel(domainName, difficultyLevel);
-			if (assessmentQuestionList != null) {
-				assessmentQuestionList.forEach(x -> questionsDetails.addAll(x.getQuestionList()));
-			}
-			questions.setQuestionList(questionsDetails);
-			questions.setQuestionCount(questionsDetails.size());
+			questions.setQuestionList(assessmentQuestion.getQuestionList());
+			questions.setQuestionCount(assessmentQuestion.getQuestionList().size());
+			questions.setQuestionCode(assessmentQuestion.getQuestionCode());
 		}
 		responseDTO.setState(questions);
 		responseDTO.setSuccess(Boolean.TRUE);

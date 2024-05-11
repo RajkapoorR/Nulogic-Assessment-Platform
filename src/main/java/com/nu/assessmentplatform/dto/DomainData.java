@@ -13,4 +13,5 @@ import lombok.Data;
 public class DomainData {
 	private List<String> domains;
 	private List<Levels> difficultyLevels;
+	private List<String> questionCode;
 }
