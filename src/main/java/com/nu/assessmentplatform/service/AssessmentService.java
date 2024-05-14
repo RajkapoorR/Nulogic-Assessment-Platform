@@ -3,6 +3,7 @@ package com.nu.assessmentplatform.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
@@ -43,5 +44,7 @@ public interface AssessmentService {
 	ResponseDTO<List<AssessmentDetails>> getUserScore(String userEmail);
 
 	ResponseDTO<DomainData> fetchAllQuestionCode();
+
+	ResponseDTO<?> readAndSaveAssessmentQuestion(MultipartFile file);
 
 }

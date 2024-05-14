@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
@@ -45,7 +46,7 @@ public class AssessmentController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@GetMapping("/questionCodes")
 	public ResponseEntity<ResponseDTO<DomainData>> getAllQuestionCode() {
 		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllQuestionCode();
@@ -59,20 +60,32 @@ public class AssessmentController {
 	@PostMapping("/create-domain")
 	public ResponseEntity<ResponseDTO<?>> createDomain(@RequestBody Domains domains) {
 		ResponseDTO<?> responseDTO = assessmentService.createDomains(domains);
-		return ResponseEntity.ok(responseDTO);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@PostMapping("/create-questions")
 	public ResponseEntity<ResponseDTO<?>> createAssessmentQuestions(
 			@RequestBody AssessmentQuestions assessmentQuestions) {
 		ResponseDTO<?> responseDTO = assessmentService.createAssesmentQuestions(assessmentQuestions);
-		return ResponseEntity.ok(responseDTO);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/levels/{domain}")
 	public ResponseEntity<ResponseDTO<DomainData>> getDomainLevels(@PathVariable("domain") String domain) {
 		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllLevels(domain);
-		return ResponseEntity.ok(responseDTO);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/questions")
@@ -82,41 +95,77 @@ public class AssessmentController {
 			@RequestParam(name = "questionCode", required = false) String questionCode) {
 		ResponseDTO<Questions> responseDTO = assessmentService.fetchQuestions(domainName, difficultyLevel,
 				questionCode);
-		return ResponseEntity.ok(responseDTO);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/statistics")
 	public ResponseEntity<ResponseDTO<List<TestStatistics>>> getTestStatistics(
-			@RequestParam(name = "domain" ,required = false) String domainName,
-			@RequestParam(name = "difficultyLevel",required = false) Levels difficultyLevel) {
+			@RequestParam(name = "domain", required = false) String domainName,
+			@RequestParam(name = "difficultyLevel", required = false) Levels difficultyLevel) {
 		ResponseDTO<List<TestStatistics>> responseDTO = assessmentService.getStaticsData(domainName, difficultyLevel);
-		return ResponseEntity.ok(responseDTO);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/assignTask")
-	public ResponseDTO<?> assignTask(@RequestParam("userEmail") String userEmail,
+	public ResponseEntity<ResponseDTO<?>> assignTask(@RequestParam("userEmail") String userEmail,
 			@RequestParam("questionCode") String questionCode) throws MessagingException {
-		ResponseDTO<?> assignTask = assessmentService.assignTask(userEmail, questionCode);
-		return assignTask;
+		ResponseDTO<?> responseDTO = assessmentService.assignTask(userEmail, questionCode);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/getUserScore")
-	public ResponseDTO<List<AssessmentDetails>> getScore(@RequestParam("userEmail") String userEmail) {
-		ResponseDTO<List<AssessmentDetails>> userScore = assessmentService.getUserScore(userEmail);
-		return userScore;
+	public ResponseEntity<ResponseDTO<List<AssessmentDetails>>> getScore(@RequestParam("userEmail") String userEmail) {
+		ResponseDTO<List<AssessmentDetails>> responseDTO = assessmentService.getUserScore(userEmail);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@GetMapping("/fetchUserAssessment")
-	public ResponseDTO<List<AssessmentDetails>> getUserAssessment(@RequestParam("userEmail") String userEmail,
+	public ResponseEntity<ResponseDTO<List<AssessmentDetails>>> getUserAssessment(
+			@RequestParam("userEmail") String userEmail,
 			@RequestParam(name = "assessmentStatus", required = false) AssessmentStatus assessmentStatus) {
-		ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment = assessmentService
-				.fetchUsersAssignedAssessment(userEmail, assessmentStatus);
-		return fetchUsersAssignedAssessment;
+		ResponseDTO<List<AssessmentDetails>> responseDTO = assessmentService.fetchUsersAssignedAssessment(userEmail,
+				assessmentStatus);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@PostMapping("/submitResponse")
-	public ResponseDTO<ScoreResponse> submitResponse(@RequestBody SubmitAssessmentRequest assessmentRequest) {
-		ResponseDTO<ScoreResponse> submitResponse = assessmentService.submitResponse(assessmentRequest);
-		return submitResponse;
+	public ResponseEntity<ResponseDTO<ScoreResponse>> submitResponse(
+			@RequestBody SubmitAssessmentRequest assessmentRequest) {
+		ResponseDTO<ScoreResponse> responseDTO = assessmentService.submitResponse(assessmentRequest);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PostMapping("/upload")
+	public ResponseEntity<ResponseDTO<?>> uploadQuestions(@RequestParam("file") MultipartFile file) {
+		ResponseDTO<?> responseDTO = assessmentService.readAndSaveAssessmentQuestion(file);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
 	}
 }

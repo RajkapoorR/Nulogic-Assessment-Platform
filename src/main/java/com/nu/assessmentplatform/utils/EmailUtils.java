@@ -18,7 +18,7 @@ public class EmailUtils {
 		String fromAddress = "demo@sample.com";
 		MimeMessage message = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED);
-		helper.setTo("mahalakshmi.pattan@nulogic.io");
+		helper.setTo(toAddress);
 		helper.setSubject(subject);
 		helper.setText(html, true);
 		helper.setFrom(fromAddress);

@@ -1,5 +1,7 @@
 package com.nu.assessmentplatform.service.impl;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,11 +9,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nu.assessmentplatform.domain.AssessmentDetails;
 import com.nu.assessmentplatform.domain.AssessmentQuestions;
 import com.nu.assessmentplatform.domain.Domains;
@@ -149,18 +154,23 @@ public class AssessmentServiceImpl implements AssessmentService {
 			questions.setQuestionList(assessmentQuestions.getQuestionList());
 			questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
 			questions.setQuestionCode(questionCode);
+			questions.setDomain(domainName);
+			questions.setLevel(difficultyLevel);
 		} else if (StringUtils.hasText(questionCode)) {
 			assessmentQuestions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
 			questions.setQuestionList(assessmentQuestions.getQuestionList());
 			questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
 			questions.setQuestionCode(questionCode);
-
+			questions.setDomain(domainName);
+			questions.setLevel(difficultyLevel);
 		} else {
 			AssessmentQuestions assessmentQuestion = assessmentQuestionsRepo
 					.findByDomainNameAndDifficultyLevel(domainName, difficultyLevel);
 			questions.setQuestionList(assessmentQuestion.getQuestionList());
 			questions.setQuestionCount(assessmentQuestion.getQuestionList().size());
 			questions.setQuestionCode(assessmentQuestion.getQuestionCode());
+			questions.setDomain(domainName);
+			questions.setLevel(difficultyLevel);
 		}
 		responseDTO.setState(questions);
 		responseDTO.setSuccess(Boolean.TRUE);
@@ -199,13 +209,17 @@ public class AssessmentServiceImpl implements AssessmentService {
 		ResponseDTO<?> responseDTO = new ResponseDTO<>();
 		try {
 			Users userByEmail = userHelper.getUserByEmail(userEmail);
+			if (!StringUtils.hasText(userEmail) || userEmail.equalsIgnoreCase("undefined")) {
+				throw new IllegalAccessException("Email is Null/Empty");
+			}
 			AssessmentQuestions questions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
 			if (userByEmail != null && questions != null) {
 				validateExistingAssessments(questionCode, userByEmail, false);
+				generateAssessmentNotification(userEmail, userByEmail.getDisplayName());
 				saveAssessmentDetailsToDB(questionCode, userByEmail, questions);
-				generateAssessmentNotification(userEmail);
 				responseDTO.setSuccess(Boolean.TRUE);
-				responseDTO.setStatus("Assessment assigned successfully and notified to the employee via mail");
+				responseDTO.setStatus(
+						"Assessment assigned successfully and notified to the employee via mail -" + userEmail);
 			}
 			if (questions == null) {
 				throw new IllegalAccessException("Invalid question code");
@@ -302,19 +316,52 @@ public class AssessmentServiceImpl implements AssessmentService {
 		return responseDTO;
 	}
 
+	@Override
+	public ResponseDTO<?> readAndSaveAssessmentQuestion(MultipartFile file) {
+		ResponseDTO<?> responseDTO = new ResponseDTO<>();
+		String line;
+		ObjectMapper mapper = new ObjectMapper();
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+			while ((line = br.readLine()) != null) {
+				AssessmentQuestions assessmentQuestions = mapper.readValue(line, AssessmentQuestions.class);
+				int questionSize = !CollectionUtils.isEmpty(assessmentQuestions.getQuestionList())
+						? assessmentQuestions.getQuestionList().size()
+						: 0;
+				assessmentQuestions.setQuestionCount(questionSize);
+				assessmentQuestions.setTotalQuestionScore(questionSize * 10);
+				assessmentQuestionsRepo.save(assessmentQuestions);
+				responseDTO.setSuccess(Boolean.TRUE);
+				responseDTO.setStatus("Questions uploaded successfully");
+			}
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Issue occured - Cause - " + e.getMessage());
+		}
+		return responseDTO;
+	}
+
 	private void updateScoreAndTestCountInDB(AssessmentQuestions assessmentQuestions, String userId, int score) {
 		int count = 0;
-		AssessmentDetails assessmentDetails = new AssessmentDetails();
-		assessmentDetails.setAssessmentStatus(AssessmentStatus.COMPLETED);
-		assessmentDetails.setDomain(assessmentQuestions.getDomainName());
-		assessmentDetails.setLevel(assessmentQuestions.getDifficultyLevel());
-		assessmentDetails.setQuestionCode(assessmentQuestions.getQuestionCode());
-		assessmentDetails.setQuestionCount(assessmentQuestions.getQuestionCount());
-		assessmentDetails.setScore(score);
-		assessmentDetails.setUserId(userId);
-		assessmentDetails.setTotalQuestionScore(100);
-		assessmentDetails.setUserTestCount(++count);
-		assessmentDetailsRepo.save(assessmentDetails);
+		AssessmentDetails existingAssessment = assessmentDetailsRepo.findByUserIdAndQuestionCode(userId,
+				assessmentQuestions.getQuestionCode());
+		if (existingAssessment != null) {
+			existingAssessment.setAssessmentStatus(AssessmentStatus.COMPLETED);
+			existingAssessment.setScore(score);
+			existingAssessment.setUserTestCount(++count);
+			assessmentDetailsRepo.save(existingAssessment);
+		} else {
+			AssessmentDetails assessmentDetails = new AssessmentDetails();
+			assessmentDetails.setAssessmentStatus(AssessmentStatus.COMPLETED);
+			assessmentDetails.setDomain(assessmentQuestions.getDomainName());
+			assessmentDetails.setLevel(assessmentQuestions.getDifficultyLevel());
+			assessmentDetails.setQuestionCode(assessmentQuestions.getQuestionCode());
+			assessmentDetails.setQuestionCount(assessmentQuestions.getQuestionCount());
+			assessmentDetails.setScore(score);
+			assessmentDetails.setUserId(userId);
+			assessmentDetails.setTotalQuestionScore(100);
+			assessmentDetails.setUserTestCount(++count);
+			assessmentDetailsRepo.save(assessmentDetails);
+		}
 	}
 
 	public int calculateScore(List<QuestionsDetails> questionList, List<QuestionsDetails> submittedAnswers) {
@@ -338,8 +385,11 @@ public class AssessmentServiceImpl implements AssessmentService {
 		return question1.getQuestionText().contentEquals(submittedAnswers.getQuestionText());
 	}
 
-	private void generateAssessmentNotification(String userEmail) throws MessagingException {
+	private void generateAssessmentNotification(String userEmail, String name) throws MessagingException {
+		ModelMap map = new ModelMap();
 		Context context = new Context();
+		map.addAttribute("employeeName", name);
+		context.setVariables(map);
 		String html = templateEngine.process("assessment-notification-template", context);
 		emailUtils.sendEmail(userEmail, "New Assessment Assigned for You", html);
 	}
