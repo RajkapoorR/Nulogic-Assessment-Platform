@@ -146,34 +146,50 @@ public class AssessmentServiceImpl implements AssessmentService {
 	public ResponseDTO<Questions> fetchQuestions(String domainName, Levels difficultyLevel, String questionCode) {
 		ResponseDTO<Questions> responseDTO = new ResponseDTO<>();
 		Questions questions = new Questions();
-		AssessmentQuestions assessmentQuestions = null;
-		if (StringUtils.hasText(questionCode) && StringUtils.hasText(difficultyLevel.name())
-				&& StringUtils.hasText(domainName)) {
-			assessmentQuestions = assessmentQuestionsRepo.findByDomainNameAndDifficultyLevelAndQuestionCode(domainName,
-					difficultyLevel, questionCode);
-			questions.setQuestionList(assessmentQuestions.getQuestionList());
-			questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
-			questions.setQuestionCode(questionCode);
-			questions.setDomain(domainName);
-			questions.setLevel(difficultyLevel);
-		} else if (StringUtils.hasText(questionCode)) {
-			assessmentQuestions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
-			questions.setQuestionList(assessmentQuestions.getQuestionList());
-			questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
-			questions.setQuestionCode(questionCode);
-			questions.setDomain(domainName);
-			questions.setLevel(difficultyLevel);
-		} else {
-			AssessmentQuestions assessmentQuestion = assessmentQuestionsRepo
-					.findByDomainNameAndDifficultyLevel(domainName, difficultyLevel);
-			questions.setQuestionList(assessmentQuestion.getQuestionList());
-			questions.setQuestionCount(assessmentQuestion.getQuestionList().size());
-			questions.setQuestionCode(assessmentQuestion.getQuestionCode());
-			questions.setDomain(domainName);
-			questions.setLevel(difficultyLevel);
+		AssessmentQuestions assessmentQuestions;
+		try {
+			if (StringUtils.hasText(questionCode) && StringUtils.hasText(difficultyLevel.name())
+					&& StringUtils.hasText(domainName)) {
+				assessmentQuestions = assessmentQuestionsRepo
+						.findByDomainNameAndDifficultyLevelAndQuestionCode(domainName, difficultyLevel, questionCode);
+				if (assessmentQuestions != null) {
+					questions.setQuestionList(assessmentQuestions.getQuestionList());
+					questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
+					questions.setQuestionCode(questionCode);
+					questions.setDomain(domainName);
+					questions.setLevel(difficultyLevel);
+				}
+
+			} else if (StringUtils.hasText(questionCode)) {
+				assessmentQuestions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
+				if (assessmentQuestions != null) {
+					questions.setQuestionList(assessmentQuestions.getQuestionList());
+					questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
+					questions.setQuestionCode(questionCode);
+					questions.setDomain(domainName);
+					questions.setLevel(difficultyLevel);
+				}
+
+			} else {
+				assessmentQuestions = assessmentQuestionsRepo.findByDomainNameAndDifficultyLevel(domainName,
+						difficultyLevel);
+				if (assessmentQuestions != null) {
+					questions.setQuestionList(assessmentQuestions.getQuestionList());
+					questions.setQuestionCount(assessmentQuestions.getQuestionList().size());
+					questions.setQuestionCode(assessmentQuestions.getQuestionCode());
+					questions.setDomain(domainName);
+					questions.setLevel(difficultyLevel);
+				}
+			}
+			if (assessmentQuestions == null) {
+				throw new IllegalArgumentException("Questions not found");
+			}
+			responseDTO.setState(questions);
+			responseDTO.setSuccess(Boolean.TRUE);
+		} catch (Exception e) {
+			responseDTO.setErrors("Issue occured - Cause - " + e.getMessage());
+			responseDTO.setSuccess(Boolean.FALSE);
 		}
-		responseDTO.setState(questions);
-		responseDTO.setSuccess(Boolean.TRUE);
 		return responseDTO;
 	}
 
@@ -307,6 +323,8 @@ public class AssessmentServiceImpl implements AssessmentService {
 				scoreResponse.setTotalQuestionScore(assessmentQuestions.getTotalQuestionScore());
 				responseDTO.setState(scoreResponse);
 				responseDTO.setSuccess(Boolean.TRUE);
+			} else if (assessmentQuestions == null) {
+				throw new IllegalArgumentException("Questions not found");
 			}
 
 		} catch (Exception e) {
