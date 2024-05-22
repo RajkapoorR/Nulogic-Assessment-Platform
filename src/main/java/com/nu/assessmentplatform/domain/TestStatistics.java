@@ -1,6 +1,6 @@
 package com.nu.assessmentplatform.domain;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,5 +18,5 @@ public class TestStatistics {
 	private Levels level;
 	private String questionCode;
 	private int overallCount;
-    private List<String> userAttendees;
+    private Set<String> userAttendees;
 }

@@ -22,11 +22,12 @@ import jakarta.mail.MessagingException;
 @Service
 public interface AssessmentService {
 
-	ResponseDTO<DomainData> fetchAllDomains();
+	ResponseDTO<DomainData> fetchAllDomains(String email);
 
 	ResponseDTO<DomainData> fetchAllLevels(String domain);
 
-	ResponseDTO<Questions> fetchQuestions(String domainName, Levels difficultyLevel, String questionCode);
+	ResponseDTO<Questions> fetchQuestions(String domainName, Levels difficultyLevel, String questionCode,
+			String userEmail);
 
 	ResponseDTO<?> createDomains(Domains domains);
 
@@ -34,7 +35,7 @@ public interface AssessmentService {
 
 	ResponseDTO<List<TestStatistics>> getStaticsData(String domain, Levels level);
 
-	ResponseDTO<?> assignTask(String userEmail, String questionCode) throws MessagingException;
+	ResponseDTO<?> assignTask(List<String> userEmail, String questionCode) throws MessagingException;
 
 	ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
 			AssessmentStatus assessmentStatus);
@@ -43,8 +44,10 @@ public interface AssessmentService {
 
 	ResponseDTO<List<AssessmentDetails>> getUserScore(String userEmail);
 
-	ResponseDTO<DomainData> fetchAllQuestionCode();
-
 	ResponseDTO<?> readAndSaveAssessmentQuestion(MultipartFile file);
+
+	ResponseDTO<?> updateAssessmentDetails(String userEmail, String questionCode) throws MessagingException;
+
+	ResponseDTO<DomainData> fetchAllQuestionCode(String email);
 
 }

@@ -1,6 +1,7 @@
 package com.nu.assessmentplatform.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -45,5 +46,8 @@ public class Users {
 
 	@Field("updatedAt")
 	private Date updatedAt;
+
+	@Field("domains")
+	private List<String> workingDomains;
 
 }

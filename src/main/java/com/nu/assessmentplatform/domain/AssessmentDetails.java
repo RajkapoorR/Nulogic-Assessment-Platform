@@ -34,5 +34,7 @@ public class AssessmentDetails {
 	private int totalQuestionScore;
 
 	private AssessmentStatus assessmentStatus;
+	
+	private boolean assessmentBlocked;
 
 }

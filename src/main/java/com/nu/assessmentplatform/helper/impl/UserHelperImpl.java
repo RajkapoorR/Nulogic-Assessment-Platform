@@ -1,7 +1,9 @@
 package com.nu.assessmentplatform.helper.impl;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -41,7 +43,7 @@ public class UserHelperImpl implements UserHelper {
 		userData.setLastName(googleSignInRequest.getLastName());
 		userData.setGoogleAuthId(googleSignInRequest.getGoogleId());
 		userData.setDisplayName(displayName);
-		userData.setUserRole("enduser");
+		userData.setUserRole(UserConstants.ENDUSER);
 		Date now = Date.from(Instant.now());
 		userData.setCreatedAt(now);
 		userData.setUpdatedAt(now);
@@ -94,7 +96,17 @@ public class UserHelperImpl implements UserHelper {
 		userDTO.setId(savedUser.getId());
 		userDTO.setLastName(savedUser.getLastName());
 		userDTO.setUserRole(savedUser.getUserRole());
+		userDTO.setDomains(savedUser.getWorkingDomains());
 		return userDTO;
 	}
 
+	@Override
+	public List<String> findEmailsByPrefix(String prefix) {
+		List<String> usersEmail = new ArrayList<>();
+		List<Users> findEmailsByPrefix = usersRepo.findEmailsByPrefix(prefix);
+		findEmailsByPrefix.stream().forEach(x -> {
+			usersEmail.add(x.getEmail());
+		});
+		return usersEmail;
+	}
 }

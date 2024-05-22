@@ -11,4 +11,5 @@ public class UserConstants {
 	public static final String NUTECHNOLOGY_EMAIL = "nutechnologyinc.com";
 	public static final String USER_NOT_FOUND = "User not found!!";
 	public static final String USER_EXISTS = "User Already Exists!!!";
+	public static final String ENDUSER = "enduser";
 }

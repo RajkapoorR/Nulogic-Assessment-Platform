@@ -1,5 +1,7 @@
 package com.nu.assessmentplatform.helper;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.nu.assessmentplatform.domain.Users;
@@ -23,5 +25,7 @@ public interface UserHelper {
 	Users saveUserDataToDB(Users users);
 
 	UserDTO populateUserResponse(Users savedUser);
+
+	List<String> findEmailsByPrefix(String prefix);
 
 }

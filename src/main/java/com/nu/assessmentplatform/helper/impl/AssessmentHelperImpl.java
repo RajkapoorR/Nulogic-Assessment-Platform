@@ -1,7 +1,7 @@
 package com.nu.assessmentplatform.helper.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,13 +33,13 @@ public class AssessmentHelperImpl implements AssessmentHelper {
 		}
 		if (existingTestStatics != null) {
 			int overallCount = existingTestStatics.getOverallCount();
-			List<String> userAttendees = existingTestStatics.getUserAttendees();
+			Set<String> userAttendees = existingTestStatics.getUserAttendees();
 			existingTestStatics.setOverallCount(++overallCount);
 			userAttendees.add(email);
 			existingTestStatics.setUserAttendees(userAttendees);
 			testStatisticsRepo.save(existingTestStatics);
 		} else {
-			List<String> userAttendees = new ArrayList<>();
+			Set<String> userAttendees = new HashSet<>();
 			userAttendees.add(email);
 			TestStatistics statistics = new TestStatistics();
 			statistics.setDomainName(domain);

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -38,8 +39,8 @@ public class AssessmentController {
 	private AssessmentService assessmentService;
 
 	@GetMapping("/domains")
-	public ResponseEntity<ResponseDTO<DomainData>> getAllDomains() {
-		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllDomains();
+	public ResponseEntity<ResponseDTO<DomainData>> getAllDomains(@RequestParam("email") String userEmail) {
+		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllDomains(userEmail);
 		if (responseDTO.isSuccess()) {
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} else {
@@ -48,8 +49,8 @@ public class AssessmentController {
 	}
 
 	@GetMapping("/questionCodes")
-	public ResponseEntity<ResponseDTO<DomainData>> getAllQuestionCode() {
-		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllQuestionCode();
+	public ResponseEntity<ResponseDTO<DomainData>> getAllQuestionCode(@RequestParam("email") String userEmail) {
+		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllQuestionCode(userEmail);
 		if (responseDTO.isSuccess()) {
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} else {
@@ -92,9 +93,21 @@ public class AssessmentController {
 	public ResponseEntity<ResponseDTO<Questions>> getQuestions(
 			@RequestParam(name = "domain", required = false) String domainName,
 			@RequestParam(name = "difficultyLevel", required = false) Levels difficultyLevel,
-			@RequestParam(name = "questionCode", required = false) String questionCode) {
-		ResponseDTO<Questions> responseDTO = assessmentService.fetchQuestions(domainName, difficultyLevel,
-				questionCode);
+			@RequestParam(name = "questionCode", required = false) String questionCode,
+			@RequestParam(name = "userEmail") String userEmail) {
+		ResponseDTO<Questions> responseDTO = assessmentService.fetchQuestions(domainName, difficultyLevel, questionCode,
+				userEmail);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
+	}
+
+	@PutMapping("/unlock-assessment")
+	public ResponseEntity<ResponseDTO<?>> updateAssessmentDetails(@RequestParam("email") String userEmail,
+			@RequestParam("questionCode") String questionCode) throws MessagingException {
+		ResponseDTO<?> responseDTO = assessmentService.updateAssessmentDetails(userEmail, questionCode);
 		if (responseDTO.isSuccess()) {
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} else {
@@ -115,7 +128,7 @@ public class AssessmentController {
 	}
 
 	@GetMapping("/assignTask")
-	public ResponseEntity<ResponseDTO<?>> assignTask(@RequestParam("userEmail") String userEmail,
+	public ResponseEntity<ResponseDTO<?>> assignTask(@RequestParam("userEmail") List<String> userEmail,
 			@RequestParam("questionCode") String questionCode) throws MessagingException {
 		ResponseDTO<?> responseDTO = assessmentService.assignTask(userEmail, questionCode);
 		if (responseDTO.isSuccess()) {

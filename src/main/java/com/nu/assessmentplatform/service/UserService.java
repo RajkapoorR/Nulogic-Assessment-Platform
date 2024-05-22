@@ -1,5 +1,7 @@
 package com.nu.assessmentplatform.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.nu.assessmentplatform.domain.Users;
@@ -16,5 +18,7 @@ public interface UserService {
 	ResponseDTO<Users> getSingleUser(String userId, String email);
 
 	ResponseDTO<UserDTO> createUser(Users users);
+
+	ResponseDTO<List<String>> fetchEmails(String prefix);
 
 }

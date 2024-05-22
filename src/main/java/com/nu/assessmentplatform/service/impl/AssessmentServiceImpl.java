@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,28 +71,47 @@ public class AssessmentServiceImpl implements AssessmentService {
 	private AssessmentHelper assessmentHelper;
 
 	@Override
-	public ResponseDTO<DomainData> fetchAllDomains() {
+	public ResponseDTO<DomainData> fetchAllDomains(String email) {
 		ResponseDTO<DomainData> responseDTO = new ResponseDTO<>();
-		DomainData data = new DomainData();
-		List<String> domainList = new ArrayList<>();
-		List<Domains> allDomainData = domainsRepo.findAll();
-		allDomainData.stream().forEach(x -> domainList.add(x.getName()));
-		data.setDomains(domainList);
-		responseDTO.setState(data);
-		responseDTO.setSuccess(Boolean.TRUE);
+		Users userByEmail = userHelper.getUserByEmail(email);
+		if (userByEmail != null) {
+			List<String> userWorkingDomains = userByEmail.getWorkingDomains();
+			List<Domains> allDomainData = domainsRepo.findAll();
+			List<String> matchedDomains = new ArrayList<>();
+			allDomainData.stream().forEach(domain -> {
+				if (userWorkingDomains.contains(domain.getName())) {
+					matchedDomains.add(domain.getName());
+				}
+			});
+			DomainData data = new DomainData();
+			data.setDomains(matchedDomains);
+			responseDTO.setState(data);
+			responseDTO.setSuccess(Boolean.TRUE);
+		} else {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Users not found");
+		}
 		return responseDTO;
 	}
 
 	@Override
-	public ResponseDTO<DomainData> fetchAllQuestionCode() {
+	public ResponseDTO<DomainData> fetchAllQuestionCode(String email) {
 		ResponseDTO<DomainData> responseDTO = new ResponseDTO<>();
-		DomainData data = new DomainData();
-		List<String> questionCode = new ArrayList<>();
-		List<AssessmentQuestions> assessmentQuestions = assessmentQuestionsRepo.findAll();
-		assessmentQuestions.stream().forEach(x -> questionCode.add(x.getQuestionCode()));
-		data.setDomains(questionCode);
-		responseDTO.setState(data);
-		responseDTO.setSuccess(Boolean.TRUE);
+		Users userByEmail = userHelper.getUserByEmail(email);
+		if (userByEmail != null) {
+			List<String> userWorkingDomains = userByEmail.getWorkingDomains();
+			List<String> questionCodeList = new ArrayList<>();
+			List<AssessmentQuestions> assessmentQuestions = assessmentQuestionsRepo.findAll();
+			assessmentQuestions.stream().filter(question -> userWorkingDomains.contains(question.getDomainName()))
+					.forEach(question -> questionCodeList.add(question.getQuestionCode()));
+			DomainData data = new DomainData();
+			data.setDomains(questionCodeList);
+			responseDTO.setState(data);
+			responseDTO.setSuccess(Boolean.TRUE);
+		} else {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("User not found");
+		}
 		return responseDTO;
 	}
 
@@ -143,11 +164,17 @@ public class AssessmentServiceImpl implements AssessmentService {
 	}
 
 	@Override
-	public ResponseDTO<Questions> fetchQuestions(String domainName, Levels difficultyLevel, String questionCode) {
+	public ResponseDTO<Questions> fetchQuestions(String domainName, Levels difficultyLevel, String questionCode,
+			String userEmail) {
 		ResponseDTO<Questions> responseDTO = new ResponseDTO<>();
 		Questions questions = new Questions();
 		AssessmentQuestions assessmentQuestions;
+		Users userByEmail = userHelper.getUserByEmail(userEmail);
 		try {
+			if (!StringUtils.hasText(userEmail) || userEmail.equalsIgnoreCase("undefined")) {
+				throw new IllegalAccessException("Email is Null/Empty");
+			}
+			validateExistingAssessments(questionCode, userByEmail, true);
 			if (StringUtils.hasText(questionCode) && StringUtils.hasText(difficultyLevel.name())
 					&& StringUtils.hasText(domainName)) {
 				assessmentQuestions = assessmentQuestionsRepo
@@ -221,32 +248,40 @@ public class AssessmentServiceImpl implements AssessmentService {
 	}
 
 	@Override
-	public ResponseDTO<?> assignTask(String userEmail, String questionCode) throws MessagingException {
+	public ResponseDTO<?> assignTask(List<String> userEmailList, String questionCode) throws MessagingException {
 		ResponseDTO<?> responseDTO = new ResponseDTO<>();
-		try {
-			Users userByEmail = userHelper.getUserByEmail(userEmail);
-			if (!StringUtils.hasText(userEmail) || userEmail.equalsIgnoreCase("undefined")) {
-				throw new IllegalAccessException("Email is Null/Empty");
+		AtomicInteger successCount = new AtomicInteger();
+		AtomicReference<String> errors = new AtomicReference<>();
+		userEmailList.stream().forEach(userEmail -> {
+			try {
+				Users userByEmail = userHelper.getUserByEmail(userEmail);
+				if (!StringUtils.hasText(userEmail) || userEmail.equalsIgnoreCase("undefined")) {
+					throw new IllegalAccessException("Email is Null/Empty");
+				}
+				AssessmentQuestions questions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
+				if (userByEmail != null && questions != null) {
+					validateExistingAssessments(questionCode, userByEmail, false);
+					generateAssessmentNotification(userEmail, userByEmail.getDisplayName());
+					saveAssessmentDetailsToDB(questionCode, userByEmail, questions);
+				}
+				if (questions == null) {
+					throw new IllegalAccessException("Invalid question code");
+				}
+				if (userByEmail == null) {
+					throw new IllegalAccessException("User not found");
+				}
+				successCount.getAndIncrement();
+			} catch (Exception e) {
+				errors.set("Issue while assigning the assessment - Cause - " + e.getMessage());
 			}
-			AssessmentQuestions questions = assessmentQuestionsRepo.findByQuestionCode(questionCode);
-			if (userByEmail != null && questions != null) {
-				validateExistingAssessments(questionCode, userByEmail, false);
-				generateAssessmentNotification(userEmail, userByEmail.getDisplayName());
-				saveAssessmentDetailsToDB(questionCode, userByEmail, questions);
-				responseDTO.setSuccess(Boolean.TRUE);
-				responseDTO.setStatus(
-						"Assessment assigned successfully and notified to the employee via mail -" + userEmail);
-			}
-			if (questions == null) {
-				throw new IllegalAccessException("Invalid question code");
-			}
-			if (userByEmail == null) {
-				throw new IllegalAccessException("User not found");
-			}
-		} catch (Exception e) {
+		});
+		if (successCount.get() == userEmailList.size()) {
+			responseDTO.setSuccess(Boolean.TRUE);
+			responseDTO.setStatus(
+					"Assessment assigned successfully and notified to the employees via mail -" + userEmailList);
+		} else {
 			responseDTO.setSuccess(Boolean.FALSE);
-			responseDTO.setErrors("Issue while assigning the assessment - Cause - " + e.getMessage());
-
+			responseDTO.setErrors(errors);
 		}
 		return responseDTO;
 	}
@@ -366,6 +401,9 @@ public class AssessmentServiceImpl implements AssessmentService {
 			existingAssessment.setAssessmentStatus(AssessmentStatus.COMPLETED);
 			existingAssessment.setScore(score);
 			existingAssessment.setUserTestCount(++count);
+			if (existingAssessment.getUserTestCount() >= 2) {
+				existingAssessment.setAssessmentBlocked(Boolean.TRUE);
+			}
 			assessmentDetailsRepo.save(existingAssessment);
 		} else {
 			AssessmentDetails assessmentDetails = new AssessmentDetails();
@@ -380,6 +418,33 @@ public class AssessmentServiceImpl implements AssessmentService {
 			assessmentDetails.setUserTestCount(++count);
 			assessmentDetailsRepo.save(assessmentDetails);
 		}
+	}
+
+	@Override
+	public ResponseDTO<?> updateAssessmentDetails(String userEmail, String questionCode) throws MessagingException {
+		ResponseDTO<?> responseDTO = new ResponseDTO<>();
+		Users user = userHelper.fetchUserByEmail(userEmail);
+		AssessmentDetails assessmentDetails = assessmentDetailsRepo.findByUserIdAndQuestionCode(user.getId(),
+				questionCode);
+		if (assessmentDetails != null) {
+			if (!assessmentDetails.isAssessmentBlocked()) {
+				responseDTO.setSuccess(Boolean.FALSE);
+				responseDTO.setErrors("Assessment is already unlocked");
+			} else {
+				assessmentDetails.setAssessmentBlocked(Boolean.FALSE);
+				assessmentDetails.setUserTestCount(0);
+				assessmentDetails.setAssessmentStatus(AssessmentStatus.REASSIGNED);
+				assessmentDetailsRepo.save(assessmentDetails);
+				generateAssessmentUnblockedNotification(userEmail, user.getDisplayName());
+				responseDTO.setSuccess(Boolean.TRUE);
+				responseDTO.setStatus("Unblocked the assessment for the user..Now they can take the test again..");
+
+			}
+		} else {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("No assessment was there under the user ");
+		}
+		return responseDTO;
 	}
 
 	public int calculateScore(List<QuestionsDetails> questionList, List<QuestionsDetails> submittedAnswers) {
@@ -412,6 +477,15 @@ public class AssessmentServiceImpl implements AssessmentService {
 		emailUtils.sendEmail(userEmail, "New Assessment Assigned for You", html);
 	}
 
+	private void generateAssessmentUnblockedNotification(String userEmail, String name) throws MessagingException {
+		ModelMap map = new ModelMap();
+		Context context = new Context();
+		map.addAttribute("employeeName", name);
+		context.setVariables(map);
+		String html = templateEngine.process("assessment-unlocked-template", context);
+		emailUtils.sendEmail(userEmail, "New Assessment Assigned for You", html);
+	}
+
 	private void saveAssessmentDetailsToDB(String questionCode, Users userByEmail, AssessmentQuestions questions) {
 		AssessmentDetails assessmentDetails = new AssessmentDetails();
 		assessmentDetails.setUserId(userByEmail.getId());
@@ -427,8 +501,9 @@ public class AssessmentServiceImpl implements AssessmentService {
 	private void validateExistingAssessments(String questionCode, Users user, boolean submitApi) throws Exception {
 		AssessmentDetails existingAssessment = assessmentDetailsRepo.findByUserIdAndQuestionCode(user.getId(),
 				questionCode);
-		if (existingAssessment != null && existingAssessment.getUserTestCount() >= 1) {
-			throw new Exception("The assessment was already assigned and user have already took the test");
+		if (existingAssessment != null && existingAssessment.getUserTestCount() >= 2) {
+			throw new Exception(
+					"The assessment was already assigned and user have already took the test twice..Please contact your admin to reattempt..");
 		}
 		if (existingAssessment != null && !submitApi) {
 			throw new Exception("The assessment was already assigned");

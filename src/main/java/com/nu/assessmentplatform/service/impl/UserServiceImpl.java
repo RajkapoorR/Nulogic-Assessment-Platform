@@ -1,5 +1,7 @@
 package com.nu.assessmentplatform.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -106,4 +108,12 @@ public class UserServiceImpl implements UserService {
 		return responseDTO;
 	}
 
+	@Override
+	public ResponseDTO<List<String>> fetchEmails(String prefix) {
+		ResponseDTO<List<String>> responseDTO = new ResponseDTO<>();
+		List<String> findEmailsByPrefix = userHelper.findEmailsByPrefix(prefix);
+		responseDTO.setSuccess(Boolean.TRUE);
+		responseDTO.setState(findEmailsByPrefix);
+		return responseDTO;
+	}
 }
