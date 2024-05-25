@@ -45,11 +45,11 @@ public interface AssessmentService {
 
 	ResponseDTO<?> updateAssessmentDetails(String userEmail, String questionCode) throws MessagingException;
 
-	ResponseDTO<DomainData> fetchAllQuestionCode(String email);
-
 	ResponseDTO<?> importQuestionsFromCSV(MultipartFile file);
 
 	ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
 			List<AssessmentStatus> assessmentStatus);
+
+	ResponseDTO<DomainData> fetchAllQuestionCode(String email, String domainName);
 
 }

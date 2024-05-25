@@ -109,11 +109,17 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public ResponseDTO<List<String>> fetchEmails(String prefix) {
+	public ResponseDTO<List<String>> fetchEmails(String prefix, String domain) {
 		ResponseDTO<List<String>> responseDTO = new ResponseDTO<>();
-		List<String> findEmailsByPrefix = userHelper.findEmailsByPrefix(prefix);
+		List<String> emails = null;
+		if (prefix != null) {
+			emails = userHelper.findEmailsByPrefix(prefix);
+		}
+		if(domain!=null) {
+			emails = userHelper.findEmailByDomains(domain);
+		}
 		responseDTO.setSuccess(Boolean.TRUE);
-		responseDTO.setState(findEmailsByPrefix);
+		responseDTO.setState(emails);
 		return responseDTO;
 	}
 }

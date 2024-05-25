@@ -28,4 +28,6 @@ public interface UserHelper {
 
 	List<String> findEmailsByPrefix(String prefix);
 
+	List<String> findEmailByDomains(String domain);
+
 }

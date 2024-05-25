@@ -49,8 +49,10 @@ public class AssessmentController {
 	}
 
 	@GetMapping("/questionCodes")
-	public ResponseEntity<ResponseDTO<DomainData>> getAllQuestionCode(@RequestParam("email") String userEmail) {
-		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllQuestionCode(userEmail);
+	public ResponseEntity<ResponseDTO<DomainData>> getAllQuestionCode(
+			@RequestParam(name = "email", required = false) String userEmail,
+			@RequestParam(name = "domain", required = false) String domain) {
+		ResponseDTO<DomainData> responseDTO = assessmentService.fetchAllQuestionCode(userEmail, domain);
 		if (responseDTO.isSuccess()) {
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} else {

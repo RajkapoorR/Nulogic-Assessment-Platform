@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -107,6 +108,15 @@ public class UserHelperImpl implements UserHelper {
 		findEmailsByPrefix.stream().forEach(x -> {
 			usersEmail.add(x.getEmail());
 		});
+		return usersEmail;
+	}
+
+	@Override
+	public List<String> findEmailByDomains(String domain) {
+		List<Users> allUsers = usersRepo.findAll();
+		List<String> usersEmail = allUsers.stream()
+				.filter(user -> user.getWorkingDomains() != null && user.getWorkingDomains().contains(domain))
+				.map(Users::getEmail).collect(Collectors.toList());
 		return usersEmail;
 	}
 }

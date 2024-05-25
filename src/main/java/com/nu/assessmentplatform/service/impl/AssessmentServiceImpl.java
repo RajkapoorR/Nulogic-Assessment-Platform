@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -97,8 +98,31 @@ public class AssessmentServiceImpl implements AssessmentService {
 	}
 
 	@Override
-	public ResponseDTO<DomainData> fetchAllQuestionCode(String email) {
+	public ResponseDTO<DomainData> fetchAllQuestionCode(String email, String domainName) {
 		ResponseDTO<DomainData> responseDTO = new ResponseDTO<>();
+		if (email == null) {
+			List<AssessmentQuestions> assessmentQuestions = assessmentQuestionsRepo.findAll();
+			List<String> questionCodeList = new ArrayList<>();
+			assessmentQuestions.stream().forEach(x -> {
+				questionCodeList.add(x.getQuestionCode());
+			});
+			DomainData data = new DomainData();
+			data.setDomains(questionCodeList);
+			responseDTO.setState(data);
+			responseDTO.setSuccess(Boolean.TRUE);
+			return responseDTO;
+		}
+		if (domainName != null) {
+			List<AssessmentQuestions> assessmentQuestions = assessmentQuestionsRepo.findAll();
+			List<String> questionCodeList = assessmentQuestions.stream()
+					.filter(q -> q.getDomainName() != null && q.getDomainName().equalsIgnoreCase(domainName))
+					.map(AssessmentQuestions::getQuestionCode).collect(Collectors.toList());
+			DomainData data = new DomainData();
+			data.setDomains(questionCodeList);
+			responseDTO.setState(data);
+			responseDTO.setSuccess(Boolean.TRUE);
+			return responseDTO;
+		}
 		Users userByEmail = userHelper.getUserByEmail(email);
 		if (userByEmail != null) {
 			List<String> userWorkingDomains = userByEmail.getWorkingDomains();

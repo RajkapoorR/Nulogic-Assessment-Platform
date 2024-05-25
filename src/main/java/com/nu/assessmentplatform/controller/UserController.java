@@ -62,8 +62,10 @@ public class UserController {
 	}
 
 	@GetMapping("/fetch-emails")
-	public ResponseEntity<ResponseDTO<List<String>>> fetchUsersEmail(@RequestParam("prefix") String emailPrefix) {
-		ResponseDTO<List<String>> responseDTO = userService.fetchEmails(emailPrefix);
+	public ResponseEntity<ResponseDTO<List<String>>> fetchUsersEmail(
+			@RequestParam(name = "prefix", required = false) String emailPrefix,
+			@RequestParam(name = "domain", required = false) String domain) {
+		ResponseDTO<List<String>> responseDTO = userService.fetchEmails(emailPrefix,domain);
 		if (responseDTO.isSuccess()) {
 			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 		} else {

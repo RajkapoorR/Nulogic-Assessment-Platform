@@ -19,6 +19,6 @@ public interface UserService {
 
 	ResponseDTO<UserDTO> createUser(Users users);
 
-	ResponseDTO<List<String>> fetchEmails(String prefix);
+	ResponseDTO<List<String>> fetchEmails(String prefix, String domain);
 
 }
