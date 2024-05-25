@@ -151,7 +151,7 @@ public class AssessmentController {
 	@GetMapping("/fetchUserAssessment")
 	public ResponseEntity<ResponseDTO<List<AssessmentDetails>>> getUserAssessment(
 			@RequestParam("userEmail") String userEmail,
-			@RequestParam(name = "assessmentStatus", required = false) AssessmentStatus assessmentStatus) {
+			@RequestParam(name = "assessmentStatus", required = false) List<AssessmentStatus> assessmentStatus) {
 		ResponseDTO<List<AssessmentDetails>> responseDTO = assessmentService.fetchUsersAssignedAssessment(userEmail,
 				assessmentStatus);
 		if (responseDTO.isSuccess()) {

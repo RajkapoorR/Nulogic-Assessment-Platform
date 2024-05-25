@@ -312,7 +312,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 
 	@Override
 	public ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
-			AssessmentStatus assessmentStatus) {
+			List<AssessmentStatus> assessmentStatus) {
 		ResponseDTO<List<AssessmentDetails>> responseDTO = new ResponseDTO<>();
 		try {
 			Users userByEmail = userHelper.getUserByEmail(userEmail);

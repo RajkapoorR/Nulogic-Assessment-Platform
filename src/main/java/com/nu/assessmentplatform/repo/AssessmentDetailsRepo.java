@@ -17,6 +17,8 @@ public interface AssessmentDetailsRepo extends MongoRepository<AssessmentDetails
 
 	List<AssessmentDetails> findByUserIdAndAssessmentStatus(String userId, AssessmentStatus assessmentStatus);
 
+	List<AssessmentDetails> findByUserIdAndAssessmentStatus(String userId, List<AssessmentStatus> assessmentStatus);
+
 	List<AssessmentDetails> findByUserId(String userId);
 
 }

@@ -37,9 +37,6 @@ public interface AssessmentService {
 
 	ResponseDTO<?> assignTask(List<String> userEmail, String questionCode) throws MessagingException;
 
-	ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
-			AssessmentStatus assessmentStatus);
-
 	ResponseDTO<ScoreResponse> submitResponse(SubmitAssessmentRequest submitAssessmentRequest);
 
 	ResponseDTO<List<AssessmentDetails>> getUserScore(String userEmail);
@@ -51,5 +48,8 @@ public interface AssessmentService {
 	ResponseDTO<DomainData> fetchAllQuestionCode(String email);
 
 	ResponseDTO<?> importQuestionsFromCSV(MultipartFile file);
+
+	ResponseDTO<List<AssessmentDetails>> fetchUsersAssignedAssessment(String userEmail,
+			List<AssessmentStatus> assessmentStatus);
 
 }
