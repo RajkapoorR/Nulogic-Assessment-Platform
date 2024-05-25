@@ -181,4 +181,15 @@ public class AssessmentController {
 			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	@PostMapping("/upload-csv")
+	public ResponseEntity<ResponseDTO<?>> uploadQuestionsInCSV(@RequestParam("file") MultipartFile file) {
+		ResponseDTO<?> responseDTO = assessmentService.importQuestionsFromCSV(file);
+		if (responseDTO.isSuccess()) {
+			return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(responseDTO, HttpStatus.BAD_REQUEST);
+		}
+	}
+
 }

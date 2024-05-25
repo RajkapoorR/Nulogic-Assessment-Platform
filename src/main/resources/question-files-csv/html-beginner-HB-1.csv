@@ -1,0 +1,11 @@
+questionCode,domainName,difficultyLevel,questionNumber,questionText,option1,option2,option3,option4,correctOption
+HB-1,HTML,BEGINNER,1,What does HTML stand for?,Hyper Text Markup Language,Hyperlinks and Text Markup Language,Home Tool Markup Language,Hyper Text Makeup Language,Hyper Text Markup Language
+HB-1,HTML,BEGINNER,2,Which HTML tag is used to define an unordered list?,<ul>,<ol>,<li>,<ul>,<ul>
+HB-1,HTML,BEGINNER,3,Which HTML tag is used to define a hyperlink?,<a>,<link>,<href>,<h>,<a>
+HB-1,HTML,BEGINNER,4,What is the correct HTML for creating a hyperlink?,<a href='http://www.example.com'>Example</a>,<a name='http://www.example.com'>Example</a>,<hyperlink>http://www.example.com</hyperlink>,<link href='http://www.example.com'>Example</link>,<a href='http://www.example.com'>Example</a>
+HB-1,HTML,BEGINNER,5,Which HTML attribute specifies an alternate text for an image, if the image cannot be displayed?,alt,title,src,href,alt
+HB-1,HTML,BEGINNER,6,Which HTML tag is used to define a table row?,<tr>,<td>,<th>,<table>,<tr>
+HB-1,HTML,BEGINNER,7,Which HTML attribute is used to define inline styles?,style,class,font,styles,style
+HB-1,HTML,BEGINNER,8,What does CSS stand for?,Cascading Style Sheets,Colorful Style Sheets,Creative Style Sheets,Computer Style Sheets,Cascading Style Sheets
+HB-1,HTML,BEGINNER,9,Which CSS property is used to change the text color of an element?,color,text-color,font-color,foreground-color,color
+HB-1,HTML,BEGINNER,10,Which CSS property is used to set the background color of an element?,background-color,bgcolor,color,background,background-color

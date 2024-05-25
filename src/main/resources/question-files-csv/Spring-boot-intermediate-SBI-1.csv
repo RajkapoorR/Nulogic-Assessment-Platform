@@ -1,0 +1,11 @@
+questionCode,domainName,difficultyLevel,questionNumber,questionText,option1,option2,option3,option4,correctOption
+SBI-1,SPRING BOOT,INTERMEDIATE,1,What is Spring Boot?,A microservices framework,A lightweight Java framework,An ORM framework,A JavaScript framework,A lightweight Java framework
+SBI-1,SPRING BOOT,INTERMEDIATE,2,What is the purpose of @SpringBootApplication annotation in Spring Boot?,To define a controller,To specify a configuration class,To bootstrap and configure a Spring application,To define a REST endpoint,To bootstrap and configure a Spring application
+SBI-1,SPRING BOOT,INTERMEDIATE,3,What is the default port for a Spring Boot application?,8080,8081,9090,7070,8080
+SBI-1,SPRING BOOT,INTERMEDIATE,4,What is the primary build tool used in Spring Boot projects?,Maven,Gradle,Ant,SBT,Maven
+SBI-1,SPRING BOOT,INTERMEDIATE,5,Which of the following annotations is used to define a REST controller in Spring Boot?,@RestController,@Controller,@Service,@Component,@RestController
+SBI-1,SPRING BOOT,INTERMEDIATE,6,What is the purpose of Spring Initializer?,To generate a new Spring Boot project with required dependencies,To deploy Spring applications,To run Spring Boot applications,To manage Spring profiles,To generate a new Spring Boot project with required dependencies
+SBI-1,SPRING BOOT,INTERMEDIATE,7,Which embedded container is commonly used in Spring Boot applications by default?,Tomcat,Jetty,Undertow,All of the above,Tomcat
+SBI-1,SPRING BOOT,INTERMEDIATE,8,Which annotation is used to enable Spring Data JPA repositories in Spring Boot?,@EnableJpaRepositories,@EnableTransactionManagement,@Repository,@Entity,@EnableJpaRepositories
+SBI-1,SPRING BOOT,INTERMEDIATE,9,Which of the following is NOT a Spring Boot starter dependency?,spring-boot-starter-web,spring-boot-starter-data-mongo,spring-boot-starter-orm,spring-boot-starter-jms,spring-boot-starter-orm
+SBI-1,SPRING BOOT,INTERMEDIATE,10,What is the purpose of @Autowired annotation in Spring Boot?,To inject dependencies,To define a configuration class,To specify a primary bean,To enable caching,To inject dependencies

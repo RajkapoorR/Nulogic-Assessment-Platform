@@ -50,4 +50,6 @@ public interface AssessmentService {
 
 	ResponseDTO<DomainData> fetchAllQuestionCode(String email);
 
+	ResponseDTO<?> importQuestionsFromCSV(MultipartFile file);
+
 }

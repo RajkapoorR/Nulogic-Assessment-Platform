@@ -7,5 +7,5 @@ public class QuestionsDetails {
 	private Integer questionNumber;
 	private String questionText;
 	private String[] options = new String[4];
-	private int correctOptionIndex;
+	private String correctOption;
 }

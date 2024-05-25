@@ -1,0 +1,564 @@
+{
+	"info": {
+		"_postman_id": "2ddfcad1-1b8f-4d4c-9f8a-c4427a5f347c",
+		"name": "assessment-paltform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22149062",
+		"_collection_link": "https://interstellar-satellite-50442.postman.co/workspace/Spring-boot-POC~f9661d0a-5cc6-473a-b50f-d7cf33ea96c9/collection/22149062-2ddfcad1-1b8f-4d4c-9f8a-c4427a5f347c?action=share&source=collection_link&creator=22149062"
+	},
+	"item": [
+		{
+			"name": "signInWithGoogle",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstName\": \"Mahalakshmi\",\r\n    \"lastName\": \"Pattan\",\r\n    \"email\": \"mahalakshmi.pattan@nutechnologyinc.com\",\r\n    \"googleId\": \"117297967660557426987\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/user/google-sign-in",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"user",
+						"google-sign-in"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get-user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/user/get-user?email=mahalakshmi.pattan@nulogic.io",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"user",
+						"get-user"
+					],
+					"query": [
+						{
+							"key": "userId",
+							"value": "625ee0ce3c58f33f2833680c",
+							"disabled": true
+						},
+						{
+							"key": "email",
+							"value": "mahalakshmi.pattan@nulogic.io"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-domains",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"SPRING BOOT\",\r\n    \"levels\": [\r\n        \"BEGINNER\",\r\n        \"INTERMEDIATE\",\r\n        \"EXPERT\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/create-domain",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"create-domain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create-questions",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"questionList\": [\r\n        {\r\n            \"questionNumber\": 1,\r\n            \"questionText\": \"What is Spring Boot?\",\r\n            \"options\": [\r\n                \"A microservices framework\",\r\n                \"A lightweight Java framework\",\r\n                \"An ORM framework\",\r\n                \"A JavaScript framework\"\r\n            ],\r\n            \"correctOptionIndex\": 1\r\n        },\r\n        {\r\n            \"questionNumber\": 2,\r\n            \"questionText\": \"What is the purpose of @SpringBootApplication annotation in Spring Boot?\",\r\n            \"options\": [\r\n                \"To define a controller\",\r\n                \"To specify a configuration class\",\r\n                \"To bootstrap and configure a Spring application\",\r\n                \"To define a REST endpoint\"\r\n            ],\r\n            \"correctOptionIndex\": 2\r\n        },\r\n        {\r\n            \"questionNumber\": 3,\r\n            \"questionText\": \"What is the default port for a Spring Boot application?\",\r\n            \"options\": [\r\n                \"8080\",\r\n                \"8081\",\r\n                \"9090\",\r\n                \"7070\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 4,\r\n            \"questionText\": \"What is the primary build tool used in Spring Boot projects?\",\r\n            \"options\": [\r\n                \"Maven\",\r\n                \"Gradle\",\r\n                \"Ant\",\r\n                \"SBT\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 5,\r\n            \"questionText\": \"Which of the following annotations is used to define a REST controller in Spring Boot?\",\r\n            \"options\": [\r\n                \"@RestController\",\r\n                \"@Controller\",\r\n                \"@Service\",\r\n                \"@Component\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 6,\r\n            \"questionText\": \"What is the purpose of Spring Initializer?\",\r\n            \"options\": [\r\n                \"To generate a new Spring Boot project with required dependencies\",\r\n                \"To deploy Spring applications\",\r\n                \"To run Spring Boot applications\",\r\n                \"To manage Spring profiles\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 7,\r\n            \"questionText\": \"Which embedded container is commonly used in Spring Boot applications by default?\",\r\n            \"options\": [\r\n                \"Tomcat\",\r\n                \"Jetty\",\r\n                \"Undertow\",\r\n                \"All of the above\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 8,\r\n            \"questionText\": \"Which annotation is used to enable Spring Data JPA repositories in Spring Boot?\",\r\n            \"options\": [\r\n                \"@EnableJpaRepositories\",\r\n                \"@EnableTransactionManagement\",\r\n                \"@Repository\",\r\n                \"@Entity\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 9,\r\n            \"questionText\": \"Which of the following is NOT a Spring Boot starter dependency?\",\r\n            \"options\": [\r\n                \"spring-boot-starter-web\",\r\n                \"spring-boot-starter-data-mongo\",\r\n                \"spring-boot-starter-orm\",\r\n                \"spring-boot-starter-jms\"\r\n            ],\r\n            \"correctOptionIndex\": 2\r\n        },\r\n        {\r\n            \"questionNumber\": 10,\r\n            \"questionText\": \"What is the purpose of @Autowired annotation in Spring Boot?\",\r\n            \"options\": [\r\n                \"To inject dependencies\",\r\n                \"To define a configuration class\",\r\n                \"To specify a primary bean\",\r\n                \"To enable caching\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        }\r\n    ],\r\n    \"questionCode\":\"SB-M\",\r\n    \"domainName\": \"SPRING BOOT\",\r\n    \"difficultyLevel\": \"MEDIUM\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/create-questions",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"create-questions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAllDomains",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/domains?email=mahalakshmi.pattan@nulogic.io",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"domains"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "mahalakshmi.pattan@nulogic.io"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get domain levels",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/levels/Spring boot",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"levels",
+						"Spring boot"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getQuestions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/questions?domain=JAVA&questionCode=J-B&difficultyLevel=BEGINNER",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"questions"
+					],
+					"query": [
+						{
+							"key": "domain",
+							"value": "JAVA"
+						},
+						{
+							"key": "questionCode",
+							"value": "J-B"
+						},
+						{
+							"key": "difficultyLevel",
+							"value": "BEGINNER"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get test statistic",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/statistics",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"statistics"
+					],
+					"query": [
+						{
+							"key": "domain",
+							"value": "SPRING BOOT",
+							"disabled": true
+						},
+						{
+							"key": "difficultyLevel",
+							"value": "MEDIUM",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assignTask",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/assignTask?questionCode=J-B&userEmail=mahalakshmi.pattan@nulogic.io",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"assignTask"
+					],
+					"query": [
+						{
+							"key": "questionCode",
+							"value": "J-B"
+						},
+						{
+							"key": "userEmail",
+							"value": "mahalakshmi.pattan@nulogic.io"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user score",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/getUserScore?userEmail=mahalakshmi.pattan@nutechnologyinc.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"getUserScore"
+					],
+					"query": [
+						{
+							"key": "userEmail",
+							"value": "mahalakshmi.pattan@nutechnologyinc.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetchUserAssessment",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/fetchUserAssessment?assessmentStatus=COMPLETED&userEmail=mahalakshmi.pattan@nutechnologyinc.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"fetchUserAssessment"
+					],
+					"query": [
+						{
+							"key": "assessmentStatus",
+							"value": "COMPLETED"
+						},
+						{
+							"key": "userEmail",
+							"value": "mahalakshmi.pattan@nutechnologyinc.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "submit response",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"questionsDetails\": [\r\n        {\r\n            \"questionNumber\": 1,\r\n            \"questionText\": \"What is object-oriented programming (OOP) in Java?\",\r\n            \"options\": [\r\n                \"A programming paradigm based on the concept of objects\",\r\n                \"A programming paradigm based on the concept of functions\",\r\n                \"A programming paradigm based on the concept of variables\",\r\n                \"A programming paradigm based on the concept of modules\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 2,\r\n            \"questionText\": \"What is a class in Java?\",\r\n            \"options\": [\r\n                \"A blueprint for objects\",\r\n                \"A method in Java\",\r\n                \"A type of variable\",\r\n                \"An object in memory\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 3,\r\n            \"questionText\": \"What is inheritance in Java?\",\r\n            \"options\": [\r\n                \"The mechanism by which one class acquires the properties and behavior of another class\",\r\n                \"A way to define multiple classes in a single file\",\r\n                \"A way to override methods in a subclass\",\r\n                \"A way to create an object of a class\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 4,\r\n            \"questionText\": \"What is polymorphism in Java?\",\r\n            \"options\": [\r\n                \"The ability of a method to do different things based on the object that it is acting upon\",\r\n                \"The ability to define multiple methods with the same name but different parameters\",\r\n                \"The ability to hide the implementation details of a class\",\r\n                \"The ability to access members of a class without creating an object\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 5,\r\n            \"questionText\": \"What is encapsulation in Java?\",\r\n            \"options\": [\r\n                \"The bundling of data with the methods that operate on that data\",\r\n                \"The process of converting objects into bytes\",\r\n                \"The process of making a class available to other classes in the same package\",\r\n                \"The process of making a class available to other classes in different packages\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 6,\r\n            \"questionText\": \"What is the difference between == and equals() method in Java?\",\r\n            \"options\": [\r\n                \"== compares object references while equals() method compares the content of objects\",\r\n                \"== compares primitive data types while equals() method compares object references\",\r\n                \"== compares the content of objects while equals() method compares object references\",\r\n                \"== compares object references while equals() method compares primitive data types\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 7,\r\n            \"questionText\": \"What is a constructor in Java?\",\r\n            \"options\": [\r\n                \"A special type of method that is used to initialize objects\",\r\n                \"A method that is called automatically when an object is created\",\r\n                \"A method that is used to destroy objects\",\r\n                \"A method that is used to create new objects\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 8,\r\n            \"questionText\": \"What is a static method in Java?\",\r\n            \"options\": [\r\n                \"A method that belongs to the class rather than to any instance of the class\",\r\n                \"A method that is called automatically when an object is created\",\r\n                \"A method that is used to destroy objects\",\r\n                \"A method that is used to create new objects\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 9,\r\n            \"questionText\": \"What is the purpose of the 'final' keyword in Java?\",\r\n            \"options\": [\r\n                \"To declare constants, make variables unchangeable, and prevent method overriding and class inheritance\",\r\n                \"To make variables changeable\",\r\n                \"To allow method overriding and class inheritance\",\r\n                \"To make methods and classes unchangeable\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        },\r\n        {\r\n            \"questionNumber\": 10,\r\n            \"questionText\": \"What is exception handling in Java?\",\r\n            \"options\": [\r\n                \"The process of handling runtime errors gracefully to prevent program termination\",\r\n                \"The process of generating errors during program execution\",\r\n                \"The process of handling compilation errors\",\r\n                \"The process of handling logical errors\"\r\n            ],\r\n            \"correctOptionIndex\": 0\r\n        }\r\n    ],\r\n    \"userId\": \"5f8a5b401da8ee101c5ccdc2\",\r\n    \"questionCode\": \"J-B\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/submitResponse",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"submitResponse"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userRole\": \"enduser\",\r\n    \"firstName\": \"Mahalakshmi\",\r\n    \"lastName\": \"Pattan\",\r\n    \"displayName\": \"Mahalakshmi Pattan\",\r\n    \"email\": \"mahalakshmi.pattan@nulogic.io\",\r\n    \"password\": \"welcome-123\",\r\n    \"isActive\":true,\r\n    \"workingDomains\":[\"JAVA\",\"SPRING BOOT\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/user/create-user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"user",
+						"create-user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get questioncodes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/questionCodes?email=mahalakshmi.pattan@nulogic.io",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"questionCodes"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "mahalakshmi.pattan@nulogic.io"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload question",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/upload",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"upload"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "upload question CSV",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/assessmet-platform/Java-beginner-JB-1.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/upload-csv",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"upload-csv"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "fetch emails",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/user/fetch-emails?prefix=b",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"user",
+						"fetch-emails"
+					],
+					"query": [
+						{
+							"key": "prefix",
+							"value": "b"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update assessment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/rest/v1/assessment/unlock-assessment?email=mahalakshmi.pattan@nulogic.io&questionCode=SB-I",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"rest",
+						"v1",
+						"assessment",
+						"unlock-assessment"
+					],
+					"query": [
+						{
+							"key": "email",
+							"value": "mahalakshmi.pattan@nulogic.io"
+						},
+						{
+							"key": "questionCode",
+							"value": "SB-I"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

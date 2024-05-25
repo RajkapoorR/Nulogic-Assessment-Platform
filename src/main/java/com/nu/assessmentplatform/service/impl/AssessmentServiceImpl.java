@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
@@ -393,6 +395,59 @@ public class AssessmentServiceImpl implements AssessmentService {
 		return responseDTO;
 	}
 
+	@Override
+	public ResponseDTO<?> importQuestionsFromCSV(MultipartFile file) {
+		ResponseDTO<?> responseDTO = new ResponseDTO<>();
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+			Iterable<CSVRecord> records = CSVFormat.DEFAULT
+					.withHeader("questionCode", "domainName", "difficultyLevel", "questionNumber", "questionText",
+							"option1", "option2", "option3", "option4", "correctOption")
+					.withSkipHeaderRecord().parse(reader);
+			List<QuestionsDetails> questionList = new ArrayList<>();
+			String questionCode = null;
+			String domainName = null;
+			Levels difficultyLevel = null;
+			for (CSVRecord record : records) {
+				if (questionCode == null) {
+					questionCode = record.get("questionCode");
+					domainName = record.get("domainName");
+					difficultyLevel = Levels.valueOf(record.get("difficultyLevel").toUpperCase());
+				}
+				QuestionsDetails questionDetails = new QuestionsDetails();
+				questionDetails.setQuestionNumber(Integer.parseInt(record.get("questionNumber")));
+				questionDetails.setQuestionText(record.get("questionText"));
+				questionDetails.setOptions(new String[] { record.get("option1"), record.get("option2"),
+						record.get("option3"), record.get("option4") });
+				questionDetails.setCorrectOption(record.get("correctOption"));
+				questionList.add(questionDetails);
+			}
+			AssessmentQuestions assessmentQuestions = new AssessmentQuestions();
+			assessmentQuestions.setQuestionCode(questionCode);
+			assessmentQuestions.setDomainName(domainName);
+			assessmentQuestions.setDifficultyLevel(difficultyLevel);
+			assessmentQuestions.setQuestionList(questionList);
+			assessmentQuestions.setQuestionCount(questionList.size());
+			assessmentQuestions.setTotalQuestionScore(100);
+			validateAssessmentQuestions(questionCode);
+			assessmentQuestionsRepo.save(assessmentQuestions);
+			responseDTO.setSuccess(Boolean.TRUE);
+			responseDTO.setStatus("Uploaded the file successfully: " + file.getOriginalFilename());
+		} catch (Exception e) {
+			responseDTO.setSuccess(Boolean.FALSE);
+			responseDTO.setErrors("Issue occured - Cause - " + e.getMessage());
+		}
+		return responseDTO;
+	}
+
+	private void validateAssessmentQuestions(String questionCode) {
+		List<AssessmentQuestions> assessmentQuestionsList = assessmentQuestionsRepo.findAll();
+		boolean questionExists = assessmentQuestionsList.stream()
+				.anyMatch(question -> question.getQuestionCode().equals(questionCode));
+		if (questionExists) {
+			throw new RuntimeException("Question set for the question code already exists");
+		}
+	}
+
 	private void updateScoreAndTestCountInDB(AssessmentQuestions assessmentQuestions, String userId, int score) {
 		int count = 0;
 		AssessmentDetails existingAssessment = assessmentDetailsRepo.findByUserIdAndQuestionCode(userId,
@@ -457,7 +512,7 @@ public class AssessmentServiceImpl implements AssessmentService {
 			if (!areQuestionsIdentical(question, submittedAnswer)) {
 				throw new IllegalArgumentException("Questions are not identical.");
 			}
-			if (question.getCorrectOptionIndex() == submittedAnswer.getCorrectOptionIndex()) {
+			if (question.getCorrectOption().equalsIgnoreCase(submittedAnswer.getCorrectOption())) {
 				correctResponses++;
 			}
 		}
