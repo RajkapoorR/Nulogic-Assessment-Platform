@@ -45,6 +45,9 @@ public class UserServiceImpl implements UserService {
 				googleSignInResponse = userHelper.populateGoogleSignInResponse(token, users);
 				responseDTO.setState(googleSignInResponse);
 				responseDTO.setSuccess(Boolean.TRUE);
+			}
+			if (users == null) {
+				throw new IllegalArgumentException("User can not be found..Kindly contact the user..");
 			} else {
 				Users userData = userHelper.createUserFromRequest(googleSignInRequest);
 				token = jwtUtil.generateToken(userData);
@@ -115,7 +118,7 @@ public class UserServiceImpl implements UserService {
 		if (prefix != null) {
 			emails = userHelper.findEmailsByPrefix(prefix);
 		}
-		if(domain!=null) {
+		if (domain != null) {
 			emails = userHelper.findEmailByDomains(domain);
 		}
 		responseDTO.setSuccess(Boolean.TRUE);
